@@ -1,0 +1,8 @@
+# commit message template
+# Body는 선택 사항입니다.
+
+# type: Subject (아래에 작성)
+
+##################
+# Chore : 빌드 업무 수정, 패키지 매니저 수정 (gitignore 수정 등)
+##################
