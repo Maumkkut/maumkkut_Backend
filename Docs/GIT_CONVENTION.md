@@ -1,4 +1,3 @@
-# commit message template
 # Body는 선택 사항입니다.
 
 # type: Subject (아래에 작성)
