@@ -44,6 +44,7 @@ INSTALLED_APPS = [
     'dj_rest_auth.registration',
     "allauth.socialaccount",
     "allauth.socialaccount.providers.google",
+    "allauth.socialaccount.providers.naver",
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
