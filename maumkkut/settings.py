@@ -33,6 +33,7 @@ ALLOWED_HOSTS = config('ALLOWED_HOSTS', default='', cast=Csv())
 # Application definition
 
 INSTALLED_APPS = [
+    'board',
     'corsheaders',
     'accounts',
     'django.contrib.sites',
@@ -161,20 +162,6 @@ REST_FRAMEWORK = {
 
 REST_USE_JWT = True
 
-# SOCIALACCOUNT_PROVIDERS = {
-#     'google': {
-#         'SCOPE': [
-#             'profile',
-#             'email',
-#         ],
-#         'AUTH_PARAMS': {
-#             'access_type': 'online',
-#         },
-#         'OAUTH_CLIENT_ID': config('GOOGLE_OAUTH_CLIENT_ID'),
-#         'OAUTH_CLIENT_SECRET': config('GOOGLE_OAUTH_CLIENT_SECRET'),
-#     }
-# }
-
 SOCIALACCOUNT_PROVIDERS = {
     'google': {
         'SCOPE': [
@@ -184,9 +171,23 @@ SOCIALACCOUNT_PROVIDERS = {
         'AUTH_PARAMS': {
             'access_type': 'online',
         },
-        'OAUTH_PKCE_ENABLED': True,
+        'OAUTH_CLIENT_ID': config('GOOGLE_OAUTH_CLIENT_ID'),
+        'OAUTH_CLIENT_SECRET': config('GOOGLE_OAUTH_CLIENT_SECRET'),
     }
 }
+
+# SOCIALACCOUNT_PROVIDERS = {
+#     'google': {
+#         'SCOPE': [
+#             'profile',
+#             'email',
+#         ],
+#         'AUTH_PARAMS': {
+#             'access_type': 'online',
+#         },
+#         'OAUTH_PKCE_ENABLED': True,
+#     }
+# }
 
 AUTH_USER_MODEL = 'accounts.User'
 
