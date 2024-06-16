@@ -45,6 +45,7 @@ INSTALLED_APPS = [
     "allauth.socialaccount",
     "allauth.socialaccount.providers.google",
     "allauth.socialaccount.providers.naver",
+    "allauth.socialaccount.providers.kakao",
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
