@@ -192,3 +192,8 @@ SOCIALACCOUNT_PROVIDERS = {
 
 AUTH_USER_MODEL = 'accounts.User'
 
+# user model 변경에 따른 register_serializer, adapters 등록
+REST_AUTH = {
+    'REGISTER_SERIALIZER': 'accounts.serializers.CustomRegisterSerializer',
+}
+ACCOUNT_ADAPTER = 'accounts.adapters.CustomUserAccountAdapter'
