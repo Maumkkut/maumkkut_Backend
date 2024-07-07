@@ -172,3 +172,28 @@ def comment_operations(request, post_id, comment_id):
 #             serializer.save(author=request.user, post_id=post_id, parent_comment=comment)
 #             return Response(serializer.data, status=status.HTTP_201_CREATED)
 #         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+@api_view(['POST'])
+@permission_classes([IsAuthenticatedOrReadOnly])
+def report_post(request, post_id):
+    try:
+        post = Post.objects.get(id=post_id)
+    except Post.DoesNotExist:
+        return Response({'error': '게시글이 없습니다..'}, status=status.HTTP_404_NOT_FOUND)
+
+    post.report_count += 1
+    post.save()
+    return Response({'message': '신고가 완료되었습니다.'}, status=status.HTTP_200_OK)
+
+@api_view(['POST'])
+@permission_classes([IsAuthenticatedOrReadOnly])
+def report_comment(request, comment_id):
+    try:
+        comment = Comment.objects.get(id=comment_id)
+    except Comment.DoesNotExist:
+        return Response({'error': '댓글이 없습니다..'}, status=status.HTTP_404_NOT_FOUND)
+
+    comment.report_count += 1
+    comment.is_reported = True
+    comment.save()
+    return Response({'message': '신고가 완료되었습니다.'}, status=status.HTTP_200_OK)
