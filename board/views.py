@@ -75,16 +75,67 @@ def search_posts(request, method):
     return Response({"error": "Keyword not provided."}, status=status.HTTP_400_BAD_REQUEST)
 
 @api_view(['GET', 'POST'])
+# @authentication_classes([TokenAuthentication])
 @permission_classes([IsAuthenticatedOrReadOnly])
-def comment_list(request, post_id):
+def comment_detail(request, post_id, comment_id):
+    try:
+        comment = Comment.objects.get(id=comment_id, post_id=post_id)
+    except Comment.DoesNotExist:
+        return Response({"error": "댓글이 없습니다."}, status=status.HTTP_404_NOT_FOUND)
+
     if request.method == 'GET':
-        comments = Comment.objects.filter(post_id=post_id)
-        serializer = CommentSerializer(comments, many=True)
+        replies = comment.replies.all()
+        serializer = CommentSerializer(replies, many=True)
         return Response(serializer.data)
-    
+
     elif request.method == 'POST':
         serializer = CommentSerializer(data=request.data)
         if serializer.is_valid():
-            serializer.save(author=request.user, post_id=post_id)
+            serializer.save(author=request.user, post_id=post_id, parent_comment=comment)
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+@api_view(['GET', 'PUT', 'DELETE'])
+@permission_classes([IsAuthenticatedOrReadOnly])
+def comment_operations(request, post_id, comment_id):
+    try:
+        comment = Comment.objects.get(id=comment_id, post_id=post_id)
+    except Comment.DoesNotExist:
+        return Response({"error": "댓글이 없습니다."}, status=status.HTTP_404_NOT_FOUND)
+
+    if request.method == 'PUT':
+        if comment.author != request.user:
+            return Response({"error": "수정 권한이 없습니다."}, status=status.HTTP_403_FORBIDDEN)
+        
+        serializer = CommentSerializer(comment, data=request.data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+    elif request.method == 'DELETE':
+        if comment.author != request.user:
+            return Response({"error": "삭제 권한이 없습니다."}, status=status.HTTP_403_FORBIDDEN)
+        
+        comment.delete()
+        return Response(status=status.HTTP_204_NO_CONTENT)
+
+    
+# 코멘트 상세 조회   
+# def comment_detail(request, post_id, comment_id):
+#     try:
+#         comment = Comment.objects.get(id=comment_id, post_id=post_id)
+#     except Comment.DoesNotExist:
+#         return Response({"error": "Comment not found"}, status=status.HTTP_404_NOT_FOUND)
+
+#     if request.method == 'GET':
+#         replies = comment.replies.all()
+#         serializer = CommentSerializer(replies, many=True)
+#         return Response(serializer.data)
+
+#     elif request.method == 'POST':
+#         serializer = CommentSerializer(data=request.data)
+#         if serializer.is_valid():
+#             serializer.save(author=request.user, post_id=post_id, parent_comment=comment)
+#             return Response(serializer.data, status=status.HTTP_201_CREATED)
+#         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
