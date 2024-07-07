@@ -5,11 +5,12 @@ from rest_framework.response import Response
 from django.db.models import Q
 from .models import Post, Comment
 from .serializers import PostSerializer, CommentSerializer
+from django.utils import timezone
+from datetime import timedelta
 
 @api_view(['GET', 'POST'])
 @permission_classes([IsAuthenticatedOrReadOnly])
 def post_list(request):
-    #단순 전체 조회
     if request.method == 'GET':
         posts = Post.objects.all()
         serializer = PostSerializer(posts, many=True)
@@ -21,6 +22,38 @@ def post_list(request):
             serializer.save(author=request.user)
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+@api_view(['GET'])
+@permission_classes([IsAuthenticatedOrReadOnly])
+def post_list_day(request):
+    date_from = timezone.now() - timedelta(days=1)
+    posts = Post.objects.filter(created_at__gte=date_from)
+    serializer = PostSerializer(posts, many=True)
+    return Response(serializer.data)
+
+@api_view(['GET'])
+@permission_classes([IsAuthenticatedOrReadOnly])
+def post_list_week(request):
+    date_from = timezone.now() - timedelta(weeks=1)
+    posts = Post.objects.filter(created_at__gte=date_from)
+    serializer = PostSerializer(posts, many=True)
+    return Response(serializer.data)
+
+@api_view(['GET'])
+@permission_classes([IsAuthenticatedOrReadOnly])
+def post_list_month(request):
+    date_from = timezone.now() - timedelta(days=30)
+    posts = Post.objects.filter(created_at__gte=date_from)
+    serializer = PostSerializer(posts, many=True)
+    return Response(serializer.data)
+
+@api_view(['GET'])
+@permission_classes([IsAuthenticatedOrReadOnly])
+def post_list_year(request):
+    date_from = timezone.now() - timedelta(days=365)
+    posts = Post.objects.filter(created_at__gte=date_from)
+    serializer = PostSerializer(posts, many=True)
+    return Response(serializer.data)
 
 @api_view(['GET', 'PUT', 'DELETE'])
 @permission_classes([IsAuthenticatedOrReadOnly])

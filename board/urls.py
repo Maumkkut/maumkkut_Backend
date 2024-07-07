@@ -18,7 +18,11 @@ from . import views
 from django.urls import path
 
 urlpatterns = [
-    path('posts/', views.post_list, name='post_list'),
+    path('posts/', views.post_list, name='post-list'),
+    path('posts/day/', views.post_list_day, name='post-list-day'),
+    path('posts/week/', views.post_list_week, name='post-list-week'),
+    path('posts/month/', views.post_list_month, name='post-list-month'),
+    path('posts/year/', views.post_list_year, name='post-list-year'),
     path('posts/<int:pk>/', views.post_detail, name='post_detail'),
     path('posts/search/', views.search_posts, name='search_posts'),
     path('posts/<int:post_id>/comments/', views.comment_list, name='comment_list'),
