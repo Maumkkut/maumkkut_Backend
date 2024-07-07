@@ -48,12 +48,12 @@ def post_detail(request, pk):
             return Response(status=status.HTTP_403_FORBIDDEN)
         post.delete()
         return Response(status=status.HTTP_204_NO_CONTENT)
-    
+        
 @api_view(['GET'])
 @permission_classes([IsAuthenticatedOrReadOnly])
 #키워드 기반 검색
 def search_posts(request, method):
-    #프론트에서 keyword랑 method로 보내줘야함
+    #프론트에서 keyword 및 method를 보내줘야함
     keyword = request.GET.get('keyword', None)
     method = request.GET.get('method', 'title_content')
     
