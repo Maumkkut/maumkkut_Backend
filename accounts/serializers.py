@@ -7,6 +7,7 @@ phone_number_regex = RegexValidator(
         message="입력 형식을 맞춰주세요.")
 
 class CustomRegisterSerializer(RegisterSerializer):
+    name = serializers.CharField(max_length=10, required=False)
     phone_number = serializers.CharField(
         required=True, 
         validators=[phone_number_regex], 
@@ -17,6 +18,7 @@ class CustomRegisterSerializer(RegisterSerializer):
 
     def get_cleaned_data(self):
         data = super().get_cleaned_data()
+        data['name'] = self.validated_data.get('name', '')
         data['phone_number'] = self.validated_data.get('phone_number', '')
         data['address'] = self.validated_data.get('address', '')
         data['nickname'] = self.validated_data.get('nickname', '')
@@ -25,6 +27,7 @@ class CustomRegisterSerializer(RegisterSerializer):
     
     def save(self, request):
         user = super().save(request)
+        name = self.validated_data.get('name')
         phone_number = self.validated_data.get('phone_number')
         address = self.validated_data.get('address')
         nickname = self.validated_data.get('nickname')
@@ -35,6 +38,7 @@ class CustomRegisterSerializer(RegisterSerializer):
         print("Saving user with address:", address)
         print("Saving user with nickname:", nickname)
         print("Saving user with date_of_birth:", date_of_birth)
+        user.name = name
         user.phone_number = phone_number
         user.address = address
         user.date_of_birth = date_of_birth

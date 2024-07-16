@@ -107,14 +107,27 @@ AUTH_PASSWORD_VALIDATORS = [
     {
         'NAME': 'django.contrib.auth.password_validation.UserAttributeSimilarityValidator',
     },
-    {
-        'NAME': 'django.contrib.auth.password_validation.MinimumLengthValidator',
-    },
+    # {
+    #     'NAME': 'django.contrib.auth.password_validation.MinimumLengthValidator',
+    # },
     {
         'NAME': 'django.contrib.auth.password_validation.CommonPasswordValidator',
     },
+    # 비밀번호가 숫자로만 구성되어있는가
     {
         'NAME': 'django.contrib.auth.password_validation.NumericPasswordValidator',
+    },
+    # 비밀번호 최소, 최대 길이 만족
+    {
+        'NAME': 'accounts.password_validation.CustomLengthValidator',
+    },
+    # 비밀번호 특수문자 포함 여부
+    {
+        'NAME': 'accounts.password_validation.SymbolValidator',
+    },
+    # 영문 1개 이상 포함 여부
+    {
+        'NAME': 'accounts.password_validation.UpperLowerValidator',
     },
 ]
 
