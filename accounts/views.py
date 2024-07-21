@@ -1,15 +1,17 @@
 from django.shortcuts import redirect
-from decouple import config
 from django.http import JsonResponse
 from django.contrib.auth import login, get_user_model
 import requests
 from rest_framework import status
-from allauth.socialaccount.models import SocialAccount
+import os
 
-CLIENT_ID = config('GOOGLE_CLIENT_ID')
-CLIENT_SECRET = config('GOOGLE_CLIENT_SECRET')
-REDIRECT_URI = config('GOOGLE_REDIRECT')
-TOKEN_URI = config('GOOGLE_TOKEN_URI')
+CLIENT_ID = os.environ.get('GOOGLE_CLIENT_ID')
+CLIENT_SECRET = os.environ.get('GOOGLE_CLIENT_SECRET')
+REDIRECT_URI = os.environ.get('GOOGLE_REDIRECT')
+TOKEN_URI = os.environ.get('GOOGLE_TOKEN_URI')
+
+def test(request):
+    return JsonResponse({"status": 200, "message": "배포 테스트 성공"}, status=status.HTTP_200_OK)
 
 def google_login(request):
     auth_url = (
