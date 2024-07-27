@@ -9,6 +9,20 @@ from drf_yasg import openapi
 from .models import Post, Comment
 from .serializers import PostSerializer, CommentSerializer
 
+# 자유게시판 예시 데이터
+post_example = {
+    'title': '예시 제목',
+    'content': '예시 내용',
+    'author': 1,  # 사용자 ID 예시
+    'board_type': 'free'
+}
+
+comment_example = {
+    'content': '예시 댓글 내용',
+    'author': 1,
+    'post': 1
+}
+
 # 자유게시판 뷰
 @swagger_auto_schema(
     method='get',
@@ -20,7 +34,16 @@ from .serializers import PostSerializer, CommentSerializer
     method='post',
     operation_summary="자유게시판 새 게시글 작성",
     operation_description="자유게시판에 새 게시글을 작성합니다",
-    request_body=PostSerializer,
+    request_body=openapi.Schema(
+        type=openapi.TYPE_OBJECT,
+        properties={
+            'title': openapi.Schema(type=openapi.TYPE_STRING, description='제목'),
+            'content': openapi.Schema(type=openapi.TYPE_STRING, description='내용'),
+            'author': openapi.Schema(type=openapi.TYPE_INTEGER, description='작성자 ID'),
+            'board_type': openapi.Schema(type=openapi.TYPE_STRING, description='게시판 타입')
+        },
+        example=post_example
+    ),
     responses={201: PostSerializer, 400: "잘못된 요청"}
 )
 @api_view(['GET', 'POST'])
@@ -87,7 +110,15 @@ def free_comment_list(request, post_id):
         openapi.Parameter('comment_id', openapi.IN_PATH, description="댓글 ID", type=openapi.TYPE_INTEGER)
     ],
     operation_description="자유게시판의 특정 게시글에 대한 댓글에 답글을 작성합니다",
-    request_body=CommentSerializer,
+    request_body=openapi.Schema(
+        type=openapi.TYPE_OBJECT,
+        properties={
+            'content': openapi.Schema(type=openapi.TYPE_STRING, description='댓글 내용'),
+            'author': openapi.Schema(type=openapi.TYPE_INTEGER, description='작성자 ID'),
+            'post': openapi.Schema(type=openapi.TYPE_INTEGER, description='게시글 ID')
+        },
+        example=comment_example
+    ),
     responses={201: CommentSerializer, 400: "잘못된 요청"}
 )
 @api_view(['GET', 'POST'])
@@ -167,7 +198,16 @@ def free_comment_operations(request, post_id, comment_id):
     method='post',
     operation_summary="여행 후기 새 게시글 작성",
     operation_description="여행 후기 게시판에 새 게시글을 작성합니다",
-    request_body=PostSerializer,
+    request_body=openapi.Schema(
+        type=openapi.TYPE_OBJECT,
+        properties={
+            'title': openapi.Schema(type=openapi.TYPE_STRING, description='제목'),
+            'content': openapi.Schema(type=openapi.TYPE_STRING, description='내용'),
+            'author': openapi.Schema(type=openapi.TYPE_INTEGER, description='작성자 ID'),
+            'board_type': openapi.Schema(type=openapi.TYPE_STRING, description='게시판 타입')
+        },
+        example=post_example
+    ),
     responses={201: PostSerializer, 400: "잘못된 요청"}
 )
 @api_view(['GET', 'POST'])
@@ -234,7 +274,15 @@ def travel_comment_list(request, post_id):
         openapi.Parameter('comment_id', openapi.IN_PATH, description="댓글 ID", type=openapi.TYPE_INTEGER)
     ],
     operation_description="여행 후기 게시판의 특정 게시글에 대한 댓글에 답글을 작성합니다",
-    request_body=CommentSerializer,
+    request_body=openapi.Schema(
+        type=openapi.TYPE_OBJECT,
+        properties={
+            'content': openapi.Schema(type=openapi.TYPE_STRING, description='댓글 내용'),
+            'author': openapi.Schema(type=openapi.TYPE_INTEGER, description='작성자 ID'),
+            'post': openapi.Schema(type=openapi.TYPE_INTEGER, description='게시글 ID')
+        },
+        example=comment_example
+    ),
     responses={201: CommentSerializer, 400: "잘못된 요청"}
 )
 @api_view(['GET', 'POST'])
