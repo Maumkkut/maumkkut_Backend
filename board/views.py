@@ -19,8 +19,27 @@ post_example = {
 
 comment_example = {
     'content': '예시 댓글 내용',
-    'author': 1,
+    'author': 1,  # 사용자 ID 예시
     'post': 1
+}
+
+post_response_example = {
+    'id': 1,
+    'title': '예시 제목',
+    'content': '예시 내용',
+    'author': {'id': 1, 'username': 'example_user'},
+    'board_type': 'free',
+    'created_at': '2023-01-01T00:00:00Z',
+    'updated_at': '2023-01-01T00:00:00Z'
+}
+
+comment_response_example = {
+    'id': 1,
+    'content': '예시 댓글 내용',
+    'author': {'id': 1, 'username': 'example_user'},
+    'post': 1,
+    'created_at': '2023-01-01T00:00:00Z',
+    'updated_at': '2023-01-01T00:00:00Z'
 }
 
 # 자유게시판 뷰
@@ -28,7 +47,7 @@ comment_example = {
     method='get',
     operation_summary="자유게시판 게시글 목록 조회",
     operation_description="자유게시판의 게시글 목록을 가져옵니다",
-    responses={200: PostSerializer(many=True)}
+    responses={200: openapi.Response('성공', PostSerializer(many=True), examples={"application/json": [post_response_example]})}
 )
 @swagger_auto_schema(
     method='post',
@@ -44,7 +63,7 @@ comment_example = {
         },
         example=post_example
     ),
-    responses={201: PostSerializer, 400: "잘못된 요청"}
+    responses={201: openapi.Response('성공', PostSerializer, examples={"application/json": post_response_example}), 400: '잘못된 요청'}
 )
 @api_view(['GET', 'POST'])
 @permission_classes([IsAuthenticatedOrReadOnly])
@@ -65,7 +84,7 @@ def free_post_list(request):
     method='get',
     operation_summary="자유게시판 게시글 상세 조회",
     operation_description="자유게시판의 게시글 상세 내용을 가져옵니다",
-    responses={200: PostSerializer, 404: "게시글을 찾을 수 없습니다"}
+    responses={200: openapi.Response('성공', PostSerializer, examples={"application/json": post_response_example}), 404: '게시글을 찾을 수 없습니다'}
 )
 @api_view(['GET'])
 @permission_classes([IsAuthenticatedOrReadOnly])
@@ -83,7 +102,7 @@ def free_post_detail(request, pk):
     operation_summary="자유게시판 댓글 목록 조회",
     manual_parameters=[openapi.Parameter('post_id', openapi.IN_PATH, description="게시글 ID", type=openapi.TYPE_INTEGER)],
     operation_description="자유게시판의 특정 게시글에 대한 댓글 목록을 가져옵니다",
-    responses={200: CommentSerializer(many=True)}
+    responses={200: openapi.Response('성공', CommentSerializer(many=True), examples={"application/json": [comment_response_example]})}
 )
 @api_view(['GET'])
 @permission_classes([IsAuthenticatedOrReadOnly])
@@ -100,7 +119,7 @@ def free_comment_list(request, post_id):
         openapi.Parameter('comment_id', openapi.IN_PATH, description="댓글 ID", type=openapi.TYPE_INTEGER)
     ],
     operation_description="자유게시판의 특정 게시글에 대한 댓글 상세 내용을 가져옵니다",
-    responses={200: CommentSerializer, 404: "댓글을 찾을 수 없습니다"}
+    responses={200: openapi.Response('성공', CommentSerializer, examples={"application/json": comment_response_example}), 404: '댓글을 찾을 수 없습니다'}
 )
 @swagger_auto_schema(
     method='post',
@@ -119,7 +138,7 @@ def free_comment_list(request, post_id):
         },
         example=comment_example
     ),
-    responses={201: CommentSerializer, 400: "잘못된 요청"}
+    responses={201: openapi.Response('성공', CommentSerializer, examples={"application/json": comment_response_example}), 400: '잘못된 요청'}
 )
 @api_view(['GET', 'POST'])
 @permission_classes([IsAuthenticatedOrReadOnly])
@@ -150,7 +169,7 @@ def free_comment_detail(request, post_id, comment_id):
     ],
     operation_description="자유게시판의 특정 게시글에 대한 댓글을 수정합니다",
     request_body=CommentSerializer,
-    responses={200: CommentSerializer, 400: "잘못된 요청", 403: "수정 권한이 없습니다"}
+    responses={200: openapi.Response('성공', CommentSerializer, examples={"application/json": comment_response_example}), 400: '잘못된 요청', 403: '수정 권한이 없습니다'}
 )
 @swagger_auto_schema(
     method='delete',
@@ -160,7 +179,7 @@ def free_comment_detail(request, post_id, comment_id):
         openapi.Parameter('comment_id', openapi.IN_PATH, description="댓글 ID", type=openapi.TYPE_INTEGER)
     ],
     operation_description="자유게시판의 특정 게시글에 대한 댓글을 삭제합니다",
-    responses={204: "댓글이 삭제되었습니다", 403: "삭제 권한이 없습니다"}
+    responses={204: '댓글이 삭제되었습니다', 403: '삭제 권한이 없습니다'}
 )
 @api_view(['PUT', 'DELETE'])
 @permission_classes([IsAuthenticatedOrReadOnly])
@@ -192,7 +211,7 @@ def free_comment_operations(request, post_id, comment_id):
     method='get',
     operation_summary="여행 후기 게시글 목록 조회",
     operation_description="여행 후기 게시판의 게시글 목록을 가져옵니다",
-    responses={200: PostSerializer(many=True)}
+    responses={200: openapi.Response('성공', PostSerializer(many=True), examples={"application/json": [post_response_example]})}
 )
 @swagger_auto_schema(
     method='post',
@@ -208,7 +227,7 @@ def free_comment_operations(request, post_id, comment_id):
         },
         example=post_example
     ),
-    responses={201: PostSerializer, 400: "잘못된 요청"}
+    responses={201: openapi.Response('성공', PostSerializer, examples={"application/json": post_response_example}), 400: '잘못된 요청'}
 )
 @api_view(['GET', 'POST'])
 @permission_classes([IsAuthenticatedOrReadOnly])
@@ -229,7 +248,7 @@ def travel_post_list(request):
     method='get',
     operation_summary="여행 후기 게시글 상세 조회",
     operation_description="여행 후기 게시판의 게시글 상세 내용을 가져옵니다",
-    responses={200: PostSerializer, 404: "게시글을 찾을 수 없습니다"}
+    responses={200: openapi.Response('성공', PostSerializer, examples={"application/json": post_response_example}), 404: '게시글을 찾을 수 없습니다'}
 )
 @api_view(['GET'])
 @permission_classes([IsAuthenticatedOrReadOnly])
@@ -247,7 +266,7 @@ def travel_post_detail(request, pk):
     operation_summary="여행 후기 댓글 목록 조회",
     manual_parameters=[openapi.Parameter('post_id', openapi.IN_PATH, description="게시글 ID", type=openapi.TYPE_INTEGER)],
     operation_description="여행 후기 게시판의 특정 게시글에 대한 댓글 목록을 가져옵니다",
-    responses={200: CommentSerializer(many=True)}
+    responses={200: openapi.Response('성공', CommentSerializer(many=True), examples={"application/json": [comment_response_example]})}
 )
 @api_view(['GET'])
 @permission_classes([IsAuthenticatedOrReadOnly])
@@ -264,7 +283,7 @@ def travel_comment_list(request, post_id):
         openapi.Parameter('comment_id', openapi.IN_PATH, description="댓글 ID", type=openapi.TYPE_INTEGER)
     ],
     operation_description="여행 후기 게시판의 특정 게시글에 대한 댓글 상세 내용을 가져옵니다",
-    responses={200: CommentSerializer, 404: "댓글을 찾을 수 없습니다"}
+    responses={200: openapi.Response('성공', CommentSerializer, examples={"application/json": comment_response_example}), 404: '댓글을 찾을 수 없습니다'}
 )
 @swagger_auto_schema(
     method='post',
@@ -283,7 +302,7 @@ def travel_comment_list(request, post_id):
         },
         example=comment_example
     ),
-    responses={201: CommentSerializer, 400: "잘못된 요청"}
+    responses={201: openapi.Response('성공', CommentSerializer, examples={"application/json": comment_response_example}), 400: '잘못된 요청'}
 )
 @api_view(['GET', 'POST'])
 @permission_classes([IsAuthenticatedOrReadOnly])
@@ -314,7 +333,7 @@ def travel_comment_detail(request, post_id, comment_id):
     ],
     operation_description="여행 후기 게시판의 특정 게시글에 대한 댓글을 수정합니다",
     request_body=CommentSerializer,
-    responses={200: CommentSerializer, 400: "잘못된 요청", 403: "수정 권한이 없습니다"}
+    responses={200: openapi.Response('성공', CommentSerializer, examples={"application/json": comment_response_example}), 400: '잘못된 요청', 403: '수정 권한이 없습니다'}
 )
 @swagger_auto_schema(
     method='delete',
@@ -324,7 +343,7 @@ def travel_comment_detail(request, post_id, comment_id):
         openapi.Parameter('comment_id', openapi.IN_PATH, description="댓글 ID", type=openapi.TYPE_INTEGER)
     ],
     operation_description="여행 후기 게시판의 특정 게시글에 대한 댓글을 삭제합니다",
-    responses={204: "댓글이 삭제되었습니다", 403: "삭제 권한이 없습니다"}
+    responses={204: '댓글이 삭제되었습니다', 403: '삭제 권한이 없습니다'}
 )
 @api_view(['PUT', 'DELETE'])
 @permission_classes([IsAuthenticatedOrReadOnly])
@@ -360,7 +379,7 @@ def travel_comment_operations(request, post_id, comment_id):
         openapi.Parameter('item_id', openapi.IN_PATH, description="아이템 ID", type=openapi.TYPE_INTEGER)
     ],
     operation_description="게시글 또는 댓글을 신고합니다",
-    responses={200: "신고가 완료되었습니다", 404: "아이템을 찾을 수 없습니다"}
+    responses={200: '신고가 완료되었습니다', 404: '아이템을 찾을 수 없습니다'}
 )
 @api_view(['POST'])
 @permission_classes([IsAuthenticatedOrReadOnly])
@@ -387,7 +406,7 @@ def report_item(request, item_type, item_id):
     method='get',
     operation_summary="최근 하루 게시글 조회",
     operation_description="최근 하루 동안 작성된 게시글을 검색합니다",
-    responses={200: PostSerializer(many=True)}
+    responses={200: openapi.Response('성공', PostSerializer(many=True), examples={"application/json": [post_response_example]})}
 )
 @api_view(['GET'])
 @permission_classes([IsAuthenticatedOrReadOnly])
@@ -401,7 +420,7 @@ def search_posts_day(request):
     method='get',
     operation_summary="최근 일주일 게시글 조회",
     operation_description="최근 일주일 동안 작성된 게시글을 검색합니다",
-    responses={200: PostSerializer(many=True)}
+    responses={200: openapi.Response('성공', PostSerializer(many=True), examples={"application/json": [post_response_example]})}
 )
 @api_view(['GET'])
 @permission_classes([IsAuthenticatedOrReadOnly])
@@ -415,7 +434,7 @@ def search_posts_week(request):
     method='get',
     operation_summary="최근 한 달 게시글 조회",
     operation_description="최근 한 달 동안 작성된 게시글을 검색합니다",
-    responses={200: PostSerializer(many=True)}
+    responses={200: openapi.Response('성공', PostSerializer(many=True), examples={"application/json": [post_response_example]})}
 )
 @api_view(['GET'])
 @permission_classes([IsAuthenticatedOrReadOnly])
@@ -429,12 +448,12 @@ def search_posts_month(request):
     method='get',
     operation_summary="최근 일 년 게시글 조회",
     operation_description="최근 일 년 동안 작성된 게시글을 검색합니다",
-    responses={200: PostSerializer(many=True)}
+    responses={200: openapi.Response('성공', PostSerializer(many=True), examples={"application/json": [post_response_example]})}
 )
 @api_view(['GET'])
 @permission_classes([IsAuthenticatedOrReadOnly])
 def search_posts_year(request):
     date_from = timezone.now() - timedelta(days=365)
-    posts = Post.objects.filter(created_at__gte(date_from))
+    posts = Post.objects.filter(created_at__gte=date_from)
     serializer = PostSerializer(posts, many=True)
     return Response(serializer.data)

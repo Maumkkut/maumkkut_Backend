@@ -22,15 +22,15 @@ from drf_yasg import openapi
 
 schema_view = get_schema_view(
     openapi.Info(
-        title="프로젝트 이름(예: humanscape-project)",
-        default_version='프로젝트 버전(예: 1.1.1)',
-        description="해당 문서 설명(예: humanscape-project API 문서)",
+        title="API 문서",
+        default_version='v1',
+        description="API 설명",
         terms_of_service="https://www.google.com/policies/terms/",
-        contact=openapi.Contact(email="이메일"),
-        license=openapi.License(name="mit"),
+        contact=openapi.Contact(email="contact@local.com"),
+        license=openapi.License(name="BSD License"),
     ),
     public=True,
-    permission_classes=[permissions.AllowAny],
+    permission_classes=(permissions.AllowAny,),
 )
 
 urlpatterns = [
@@ -39,5 +39,4 @@ urlpatterns = [
     path('redoc/', schema_view.with_ui('redoc', cache_timeout=0), name='schema-redoc'),
     path('accounts/', include('accounts.urls')),
     path('board/', include('board.urls')),
-
 ]
