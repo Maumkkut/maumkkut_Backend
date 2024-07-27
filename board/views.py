@@ -2,10 +2,10 @@ from rest_framework import status
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import IsAuthenticatedOrReadOnly
 from rest_framework.response import Response
-from .models import Post, Comment
-from .serializers import PostSerializer, CommentSerializer
 from django.utils import timezone
 from datetime import timedelta
+from .models import Post, Comment
+from .serializers import PostSerializer, CommentSerializer
 
 # 자유게시판 뷰
 @api_view(['GET', 'POST'])

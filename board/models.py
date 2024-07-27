@@ -1,5 +1,5 @@
+from django.conf import settings
 from django.db import models
-from django.contrib.auth.models import User
 
 class Post(models.Model):
     BOARD_CHOICES = [
@@ -9,7 +9,7 @@ class Post(models.Model):
     
     title = models.CharField(max_length=200)
     content = models.TextField()
-    author = models.ForeignKey(User, on_delete=models.CASCADE)
+    author = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
     created_at = models.DateTimeField(auto_now_add=True)
     report_count = models.IntegerField(default=0)  # 신고 횟수
     board_type = models.CharField(max_length=20, choices=BOARD_CHOICES, default='free')  # 게시판 타입
@@ -17,7 +17,7 @@ class Post(models.Model):
 class Comment(models.Model):
     post = models.ForeignKey(Post, related_name='comments', on_delete=models.CASCADE)
     content = models.TextField()
-    author = models.ForeignKey(User, on_delete=models.CASCADE)
+    author = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
     created_at = models.DateTimeField(auto_now_add=True)
     report_count = models.IntegerField(default=0)  # 신고 횟수
     is_reported = models.BooleanField(default=False)  # 신고 상태
