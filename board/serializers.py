@@ -16,8 +16,9 @@ class CommentSerializer(serializers.ModelSerializer):
 
 class PostSerializer(serializers.ModelSerializer):
     comments = CommentSerializer(many=True, read_only=True)
+    board_type = serializers.ChoiceField(choices=Post.BOARD_CHOICES, default='free')
 
     class Meta:
         model = Post
-        fields = ['id', 'title', 'content', 'author', 'created_at', 'comments']
+        fields = ['id', 'title', 'content', 'author', 'created_at', 'board_type', 'comments']
         read_only_fields = ['author', 'created_at']
