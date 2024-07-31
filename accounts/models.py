@@ -18,7 +18,7 @@ class User(AbstractUser):
     name = models.CharField(max_length=10, blank=True, null=True)
     phone_number = models.CharField(max_length=15, blank=True, null=True)
     address = models.CharField(max_length=255, blank=True, null=True)
-    nickname = models.CharField(max_length=10, blank=True, null=True)
+    nickname = models.CharField(max_length=10, blank=True, null=True, unique=True)
     date_of_birth = models.DateField(blank=True, null=True, verbose_name="생년월일")
     role = models.CharField(max_length=20, choices=ROLE_CHOICES, default=ROLE_GROUP_MEMBER)
 
