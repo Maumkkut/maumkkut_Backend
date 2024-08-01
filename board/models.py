@@ -12,6 +12,7 @@ class Post(models.Model):
     author = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
     created_at = models.DateTimeField(auto_now_add=True)
     report_count = models.IntegerField(default=0)  # 신고 횟수
+    is_reported = models.BooleanField(default=False)  # 신고 상태
     board_type = models.CharField(max_length=20, choices=BOARD_CHOICES, default='free')  # 게시판 타입
 
 class Comment(models.Model):

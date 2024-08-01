@@ -8,6 +8,7 @@ from drf_yasg.utils import swagger_auto_schema
 from drf_yasg import openapi
 from .models import Post, Comment
 from .serializers import PostSerializer, CommentSerializer
+from rest_framework.permissions import IsAdminUser
 
 # 자유게시판 예시 데이터
 post_example = {
@@ -379,11 +380,12 @@ def travel_comment_operations(request, post_id, comment_id):
         openapi.Parameter('item_id', openapi.IN_PATH, description="아이템 ID", type=openapi.TYPE_INTEGER)
     ],
     operation_description="게시글 또는 댓글을 신고합니다",
-    responses={200: '신고가 완료되었습니다', 404: '아이템을 찾을 수 없습니다'}
+    responses={200: '신고가 완료되었습니다', 400: '잘못된 요청', 404: '아이템을 찾을 수 없습니다'}
 )
 @api_view(['POST'])
 @permission_classes([IsAuthenticatedOrReadOnly])
 def report_item(request, item_type, item_id):
+    user = request.user
     if item_type == 'post':
         try:
             item = Post.objects.get(id=item_id)
@@ -397,9 +399,70 @@ def report_item(request, item_type, item_id):
     else:
         return Response({'error': '잘못된 타입입니다.'}, status=status.HTTP_400_BAD_REQUEST)
 
-    item.report_count += 1
+    if user in item.reported_by.all():
+        return Response({'message': '이미 신고한 항목입니다.'}, status=status.HTTP_400_BAD_REQUEST)
+    
+    item.reported_by.add(user)
     item.save()
     return Response({'message': '신고가 완료되었습니다.'}, status=status.HTTP_200_OK)
+
+@swagger_auto_schema(
+    method='get',
+    operation_summary="신고된 게시글 조회",
+    operation_description="신고된 모든 게시글을 조회합니다",
+    responses={200: openapi.Response('성공', PostSerializer(many=True), examples={"application/json": [post_response_example]})}
+)
+@swagger_auto_schema(
+    method='delete',
+    operation_summary="신고된 게시글 삭제",
+    operation_description="신고된 특정 게시글을 삭제합니다",
+    manual_parameters=[openapi.Parameter('post_id', openapi.IN_PATH, description="게시글 ID", type=openapi.TYPE_INTEGER)],
+    responses={204: '게시글이 삭제되었습니다', 404: '게시글을 찾을 수 없습니다'}
+)
+@api_view(['GET', 'DELETE'])
+@permission_classes([IsAdminUser])
+def reported_posts_list(request, post_id=None):
+    if request.method == 'GET':
+        posts = Post.objects.filter(reported_by__isnull=False).distinct()
+        serializer = PostSerializer(posts, many=True)
+        return Response(serializer.data)
+    
+    elif request.method == 'DELETE':
+        try:
+            post = Post.objects.get(id=post_id, reported_by__isnull=False)
+            post.delete()
+            return Response(status=status.HTTP_204_NO_CONTENT)
+        except Post.DoesNotExist:
+            return Response({"error": "게시글을 찾을 수 없습니다."}, status=status.HTTP_404_NOT_FOUND)
+
+@swagger_auto_schema(
+    method='get',
+    operation_summary="신고된 댓글 조회",
+    operation_description="신고된 모든 댓글을 조회합니다",
+    responses={200: openapi.Response('성공', CommentSerializer(many=True), examples={"application/json": [comment_response_example]})}
+)
+@swagger_auto_schema(
+    method='delete',
+    operation_summary="신고된 댓글 삭제",
+    operation_description="신고된 특정 댓글을 삭제합니다",
+    manual_parameters=[openapi.Parameter('comment_id', openapi.IN_PATH, description="댓글 ID", type=openapi.TYPE_INTEGER)],
+    responses={204: '댓글이 삭제되었습니다', 404: '댓글을 찾을 수 없습니다'}
+)
+@api_view(['GET', 'DELETE'])
+@permission_classes([IsAdminUser])
+def reported_comments_list(request, comment_id=None):
+    if request.method == 'GET':
+        comments = Comment.objects.filter(reported_by__isnull=False).distinct()
+        serializer = CommentSerializer(comments, many=True)
+        return Response(serializer.data)
+    
+    elif request.method == 'DELETE':
+        try:
+            comment = Comment.objects.get(id=comment_id, reported_by__isnull=False)
+            comment.delete()
+            return Response(status=status.HTTP_204_NO_CONTENT)
+        except Comment.DoesNotExist:
+            return Response({"error": "댓글을 찾을 수 없습니다."}, status=status.HTTP_404_NOT_FOUND)
 
 # 공통 조회 뷰
 @swagger_auto_schema(
