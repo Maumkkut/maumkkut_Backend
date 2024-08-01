@@ -27,7 +27,7 @@ SECRET_KEY = config('SECRET_KEY')
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = config('DEBUG', default=False, cast=bool)
 
-ALLOWED_HOSTS = config('ALLOWED_HOSTS', default='', cast=Csv())
+ALLOWED_HOSTS = ['*']
 
 
 # Application definition
@@ -41,6 +41,7 @@ INSTALLED_APPS = [
     'allauth.account',
     'rest_framework',
     'rest_framework.authtoken',
+    # 'rest_framework.simplejwt',
     'dj_rest_auth',
     'dj_rest_auth.registration',
     "allauth.socialaccount",
@@ -158,6 +159,7 @@ ACCOUNT_AUTHENTICATION_METHOD = 'username'  # 사용자명으로 인증
 REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': (
         'rest_framework.authentication.TokenAuthentication',
+        # 'rest_framework_simplejwt.authentication.JWTAuthentication',
     ),
 }
 

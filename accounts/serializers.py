@@ -1,6 +1,7 @@
 from dj_rest_auth.registration.serializers import RegisterSerializer
 from rest_framework import serializers
 from django.core.validators import RegexValidator
+from django.contrib.auth import get_user_model
 
 phone_number_regex = RegexValidator(
         regex=r'^01(?:0|1|[6-9])-(\d{3,4})-(\d{4})$',
@@ -15,6 +16,13 @@ class CustomRegisterSerializer(RegisterSerializer):
     address = serializers.CharField(max_length=255, required=True)
     nickname = serializers.CharField(max_length=10, required=False)
     date_of_birth = serializers.DateField(required=False)
+
+    # nickname validator 추가
+    def validate_nickname(self, value):
+        User = get_user_model()
+        if User.objects.filter(nickname=value).exists():
+            raise serializers.ValidationError("존재하는 닉네임입니다.")
+        return value
 
     def get_cleaned_data(self):
         data = super().get_cleaned_data()
