@@ -33,6 +33,7 @@ ALLOWED_HOSTS = ['*']
 # Application definition
 
 INSTALLED_APPS = [
+    'board',
     'corsheaders',
     'accounts',
     'django.contrib.sites',
@@ -45,14 +46,13 @@ INSTALLED_APPS = [
     'dj_rest_auth.registration',
     "allauth.socialaccount",
     "allauth.socialaccount.providers.google",
-    "allauth.socialaccount.providers.naver",
-    "allauth.socialaccount.providers.kakao",
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'drf_yasg',
 ]
 
 SITE_ID = 1
@@ -108,27 +108,14 @@ AUTH_PASSWORD_VALIDATORS = [
     {
         'NAME': 'django.contrib.auth.password_validation.UserAttributeSimilarityValidator',
     },
-    # {
-    #     'NAME': 'django.contrib.auth.password_validation.MinimumLengthValidator',
-    # },
+    {
+        'NAME': 'django.contrib.auth.password_validation.MinimumLengthValidator',
+    },
     {
         'NAME': 'django.contrib.auth.password_validation.CommonPasswordValidator',
     },
-    # 비밀번호가 숫자로만 구성되어있는가
     {
         'NAME': 'django.contrib.auth.password_validation.NumericPasswordValidator',
-    },
-    # 비밀번호 최소, 최대 길이 만족
-    {
-        'NAME': 'accounts.password_validation.CustomLengthValidator',
-    },
-    # 비밀번호 특수문자 포함 여부
-    {
-        'NAME': 'accounts.password_validation.SymbolValidator',
-    },
-    # 영문 1개 이상 포함 여부
-    {
-        'NAME': 'accounts.password_validation.UpperLowerValidator',
     },
 ]
 
@@ -178,20 +165,6 @@ REST_FRAMEWORK = {
 
 REST_USE_JWT = True
 
-# SOCIALACCOUNT_PROVIDERS = {
-#     'google': {
-#         'SCOPE': [
-#             'profile',
-#             'email',
-#         ],
-#         'AUTH_PARAMS': {
-#             'access_type': 'online',
-#         },
-#         'OAUTH_CLIENT_ID': config('GOOGLE_OAUTH_CLIENT_ID'),
-#         'OAUTH_CLIENT_SECRET': config('GOOGLE_OAUTH_CLIENT_SECRET'),
-#     }
-# }
-
 SOCIALACCOUNT_PROVIDERS = {
     'google': {
         'SCOPE': [
@@ -201,14 +174,22 @@ SOCIALACCOUNT_PROVIDERS = {
         'AUTH_PARAMS': {
             'access_type': 'online',
         },
-        'OAUTH_PKCE_ENABLED': True,
+        'OAUTH_CLIENT_ID': config('GOOGLE_OAUTH_CLIENT_ID'),
+        'OAUTH_CLIENT_SECRET': config('GOOGLE_OAUTH_CLIENT_SECRET'),
     }
 }
 
-AUTH_USER_MODEL = 'accounts.User'
+# SOCIALACCOUNT_PROVIDERS = {
+#     'google': {
+#         'SCOPE': [
+#             'profile',
+#             'email',
+#         ],
+#         'AUTH_PARAMS': {
+#             'access_type': 'online',
+#         },
+#         'OAUTH_PKCE_ENABLED': True,
+#     }
+# }
 
-# user model 변경에 따른 register_serializer, adapters 등록
-REST_AUTH = {
-    'REGISTER_SERIALIZER': 'accounts.serializers.CustomRegisterSerializer',
-}
-ACCOUNT_ADAPTER = 'accounts.adapters.CustomUserAccountAdapter'
+AUTH_USER_MODEL = 'accounts.User'
