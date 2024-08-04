@@ -13,13 +13,10 @@ from .serializers import CommentSerializer, PostDetailSerializer, PostListSerial
 post_example = {
     'title': '예시 제목',
     'content': '예시 내용',
-    'author': 1,  # 사용자 ID 예시
-    'board_type': 'free'
 }
 
 comment_example = {
     'content': '예시 댓글 내용',
-    'author': 1,  # 사용자 ID 예시
     'post': 1
 }
 
@@ -215,28 +212,45 @@ def report_item(request, item_type, item_id):
     operation_description="신고된 모든 게시글을 조회합니다",
     responses={200: openapi.Response('성공', PostListSerializer(many=True), examples={"application/json": [post_response_example]})}
 )
+@api_view(['GET'])
+@permission_classes([IsAdminUser])
+def reported_posts_list(request):
+    posts = Post.objects.filter(reported_by__isnull=False).distinct()
+    serializer = PostListSerializer(posts, many=True)
+    return Response(serializer.data)
+
+@swagger_auto_schema(
+    method='get',
+    operation_summary="신고된 게시글 상세 조회",
+    operation_description="특정 ID의 신고된 게시글을 조회합니다",
+    manual_parameters=[
+        openapi.Parameter('post_id', openapi.IN_PATH, description="게시글 ID", type=openapi.TYPE_INTEGER)
+    ],
+    responses={200: openapi.Response('성공', PostDetailSerializer, examples={"application/json": post_response_example}), 404: '게시글을 찾을 수 없습니다'}
+)
 @swagger_auto_schema(
     method='delete',
     operation_summary="신고된 게시글 삭제",
-    operation_description="신고된 특정 게시글을 삭제합니다",
-    manual_parameters=[openapi.Parameter('post_id', openapi.IN_PATH, description="게시글 ID", type=openapi.TYPE_INTEGER)],
+    operation_description="특정 ID의 신고된 게시글을 삭제합니다",
+    manual_parameters=[
+        openapi.Parameter('post_id', openapi.IN_PATH, description="게시글 ID", type=openapi.TYPE_INTEGER)
+    ],
     responses={204: '게시글이 삭제되었습니다', 404: '게시글을 찾을 수 없습니다'}
 )
 @api_view(['GET', 'DELETE'])
 @permission_classes([IsAdminUser])
-def reported_posts_list(request, post_id=None):
-    if request.method == 'GET':
-        posts = Post.objects.filter(reported_by__isnull=False).distinct()
-        serializer = PostListSerializer(posts, many=True)
-        return Response(serializer.data)
+def reported_post_detail(request, post_id):
+    try:
+        post = Post.objects.get(id=post_id, reported_by__isnull=False)
+    except Post.DoesNotExist:
+        return Response({"error": "게시글을 찾을 수 없습니다."}, status=status.HTTP_404_NOT_FOUND)
     
+    if request.method == 'GET':
+        serializer = PostDetailSerializer(post)
+        return Response(serializer.data)
     elif request.method == 'DELETE':
-        try:
-            post = Post.objects.get(id=post_id, reported_by__isnull=False)
-            post.delete()
-            return Response(status=status.HTTP_204_NO_CONTENT)
-        except Post.DoesNotExist:
-            return Response({"error": "게시글을 찾을 수 없습니다."}, status=status.HTTP_404_NOT_FOUND)
+        post.delete()
+        return Response(status=status.HTTP_204_NO_CONTENT)
 
 @swagger_auto_schema(
     method='get',
@@ -244,34 +258,45 @@ def reported_posts_list(request, post_id=None):
     operation_description="신고된 모든 댓글을 조회합니다",
     responses={200: openapi.Response('성공', CommentSerializer(many=True), examples={"application/json": [comment_response_example]})}
 )
+@api_view(['GET'])
+@permission_classes([IsAdminUser])
+def reported_comments_list(request):
+    comments = Comment.objects.filter(reported_by__isnull=False).distinct()
+    serializer = CommentSerializer(comments, many=True)
+    return Response(serializer.data)
+
+@swagger_auto_schema(
+    method='get',
+    operation_summary="신고된 댓글 상세 조회",
+    operation_description="특정 ID의 신고된 댓글을 조회합니다",
+    manual_parameters=[
+        openapi.Parameter('comment_id', openapi.IN_PATH, description="댓글 ID", type=openapi.TYPE_INTEGER)
+    ],
+    responses={200: openapi.Response('성공', CommentSerializer, examples={"application/json": comment_response_example}), 404: '댓글을 찾을 수 없습니다'}
+)
 @swagger_auto_schema(
     method='delete',
     operation_summary="신고된 댓글 삭제",
-    operation_description="신고된 특정 댓글을 삭제합니다",
-    manual_parameters=[openapi.Parameter('comment_id', openapi.IN_PATH, description="댓글 ID", type=openapi.TYPE_INTEGER)],
+    operation_description="특정 ID의 신고된 댓글을 삭제합니다",
+    manual_parameters=[
+        openapi.Parameter('comment_id', openapi.IN_PATH, description="댓글 ID", type=openapi.TYPE_INTEGER)
+    ],
     responses={204: '댓글이 삭제되었습니다', 404: '댓글을 찾을 수 없습니다'}
 )
 @api_view(['GET', 'DELETE'])
 @permission_classes([IsAdminUser])
-def reported_comments_list(request, comment_id=None):
-    if request.method == 'GET':
-        comments = Comment.objects.filter(reported_by__isnull=False).distinct()
-        serializer = CommentSerializer(comments, many=True)
-        return Response(serializer.data)
+def reported_comment_detail(request, comment_id):
+    try:
+        comment = Comment.objects.get(id=comment_id, reported_by__isnull=False)
+    except Comment.DoesNotExist:
+        return Response({"error": "댓글을 찾을 수 없습니다."}, status=status.HTTP_404_NOT_FOUND)
     
+    if request.method == 'GET':
+        serializer = CommentSerializer(comment)
+        return Response(serializer.data)
     elif request.method == 'DELETE':
-        try:
-            comment = Comment.objects.get(id=comment_id, reported_by__isnull=False)
-            comment.delete()
-            return Response(status=status.HTTP_204_NO_CONTENT)
-        except Comment.DoesNotExist:
-            return Response({"error": "댓글을 찾을 수 없습니다."}, status=status.HTTP_404_NOT_FOUND)
-
-def get_recent_posts(request, days):
-    date_from = timezone.now() - timedelta(days=days)
-    posts = Post.objects.filter(created_at__gte=date_from)
-    serializer = PostListSerializer(posts, many=True)
-    return Response(serializer.data)
+        comment.delete()
+        return Response(status=status.HTTP_204_NO_CONTENT)
 
 @swagger_auto_schema(
     method='get',
