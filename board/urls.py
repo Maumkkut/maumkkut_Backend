@@ -13,10 +13,12 @@ urlpatterns = [
 
     # 통합 신고 기능 URL 패턴
     path('report/<str:item_type>/<int:item_id>/', views.report_item, name='report-item'),
+
+    # 신고된 게시글 및 댓글 조회 및 삭제 URL 패턴
     path('reported/posts/', views.reported_posts_list, name='reported-posts-list'),
-    path('reported/posts/<int:post_id>/', views.reported_posts_list, name='reported-post-delete'),
+    path('reported/posts/<int:post_id>/', views.reported_post_detail, name='reported-post-detail'),
     path('reported/comments/', views.reported_comments_list, name='reported-comments-list'),
-    path('reported/comments/<int:comment_id>/', views.reported_comments_list, name='reported-comment-delete'),
+    path('reported/comments/<int:comment_id>/', views.reported_comment_detail, name='reported-comment-detail'),
 
     # 공통 조회 기능 URL 패턴
     path('posts/search/', views.search_posts, name='search-posts'),
