@@ -164,25 +164,97 @@ def post_list(request, board_type):
 @swagger_auto_schema(
     method='get',
     operation_summary="게시판 게시글 상세 조회",
-    operation_description="게시판의 게시글 상세 내용을 가져옵니다",
+    manual_parameters=[
+        openapi.Parameter('board_type', openapi.IN_PATH, description="게시판 타입", type=openapi.TYPE_STRING),
+        openapi.Parameter('pk', openapi.IN_PATH, description="게시글 ID", type=openapi.TYPE_INTEGER)
+    ],
+    operation_description="게시판의 특정 게시글 상세 정보를 가져옵니다",
     responses={200: openapi.Response('성공', PostDetailSerializer, examples={"application/json": post_response_example}), 404: '게시글을 찾을 수 없습니다'}
 )
-@api_view(['GET'])
+@swagger_auto_schema(
+    method='put',
+    operation_summary="게시판 게시글 수정",
+    manual_parameters=[
+        openapi.Parameter('board_type', openapi.IN_PATH, description="게시판 타입", type=openapi.TYPE_STRING),
+        openapi.Parameter('pk', openapi.IN_PATH, description="게시글 ID", type=openapi.TYPE_INTEGER)
+    ],
+    operation_description="게시판의 특정 게시글을 수정합니다",
+    request_body=PostDetailSerializer,
+    responses={200: openapi.Response('성공', PostDetailSerializer, examples={"application/json": post_response_example}), 400: '잘못된 요청', 403: '수정 권한이 없습니다'}
+)
+@swagger_auto_schema(
+    method='delete',
+    operation_summary="게시판 게시글 삭제",
+    manual_parameters=[
+        openapi.Parameter('board_type', openapi.IN_PATH, description="게시판 타입", type=openapi.TYPE_STRING),
+        openapi.Parameter('pk', openapi.IN_PATH, description="게시글 ID", type=openapi.TYPE_INTEGER)
+    ],
+    operation_description="게시판의 특정 게시글을 삭제합니다",
+    responses={204: '게시글이 삭제되었습니다', 404: '게시글을 찾을 수 없습니다'}
+)
+@api_view(['GET', 'PUT', 'DELETE'])
 @permission_classes([IsAuthenticatedOrReadOnly])
-def post_detail(request, pk, board_type):
-    return get_post_detail(request, pk, board_type)
+def post_operations(request, board_type, pk):
+    try:
+        post = Post.objects.get(pk=pk, board_type=board_type)
+    except Post.DoesNotExist:
+        return Response({"error": "게시글을 찾을 수 없습니다."}, status=status.HTTP_404_NOT_FOUND)
+
+    if request.method == 'GET':
+        serializer = PostDetailSerializer(post)
+        return Response(serializer.data)
+
+    elif request.method == 'PUT':
+        if not request.user.is_admin():
+            return Response({"error": "수정 권한이 없습니다."}, status=status.HTTP_403_FORBIDDEN)
+        
+        serializer = PostDetailSerializer(post, data=request.data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+    elif request.method == 'DELETE':
+        if not request.user.is_admin():
+            return Response({"error": "삭제 권한이 없습니다."}, status=status.HTTP_403_FORBIDDEN)
+        
+        post.delete()
+        return Response(status=status.HTTP_204_NO_CONTENT)
+
 
 @swagger_auto_schema(
+    method='post',
+    operation_summary="댓글 작성",
+    request_body=openapi.Schema(
+        type=openapi.TYPE_OBJECT,
+        properties={
+            'content': openapi.Schema(type=openapi.TYPE_STRING, description='댓글 내용'),
+            'post': openapi.Schema(type=openapi.TYPE_INTEGER, description='게시글 ID'),
+        },
+        example=comment_example
+    ),
+    responses={201: openapi.Response('성공', CommentSerializer, examples={"application/json": comment_response_example}), 400: '잘못된 요청'}
+)
+@swagger_auto_schema(
     method='get',
-    operation_summary="게시판 댓글 목록 조회",
-    manual_parameters=[openapi.Parameter('post_id', openapi.IN_PATH, description="게시글 ID", type=openapi.TYPE_INTEGER)],
-    operation_description="게시판의 특정 게시글에 대한 댓글 목록을 가져옵니다",
+    operation_summary="댓글 목록 조회",
+    manual_parameters=[
+        openapi.Parameter('post_id', openapi.IN_PATH, description="게시글 ID", type=openapi.TYPE_INTEGER)
+    ],
+    operation_description="게시글에 대한 댓글 목록을 가져옵니다.",
     responses={200: openapi.Response('성공', CommentSerializer(many=True), examples={"application/json": [comment_response_example]})}
 )
-@api_view(['GET'])
+@api_view(['GET', 'POST'])
 @permission_classes([IsAuthenticatedOrReadOnly])
 def comment_list(request, post_id):
-    return get_comments_for_post(request, post_id)
+    if request.method == 'GET':
+        return get_comments_for_post(request, post_id)
+    elif request.method == 'POST':
+        serializer = CommentSerializer(data=request.data)
+        if serializer.is_valid():
+            serializer.save(author=request.user, post_id=post_id)
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 @swagger_auto_schema(
     method='get',
