@@ -8,6 +8,19 @@ from drf_yasg.utils import swagger_auto_schema
 from drf_yasg import openapi
 from .models import Post, Comment
 from .serializers import CommentSerializer, PostDetailSerializer, PostListSerializer
+from rest_framework.pagination import PageNumberPagination
+from rest_framework.response import Response
+
+class TenResultsSetPagination(PageNumberPagination):
+    page_size = 10  # 페이지당 10개 항목
+
+    def get_paginated_response(self, data):
+        return Response({
+            'total_count': self.page.paginator.count,
+            'next': self.get_next_link(),
+            'previous': self.get_previous_link(),
+            'results': data
+        })
 
 # 예시 데이터
 post_example = {
@@ -41,17 +54,11 @@ comment_response_example = {
 }
 
 def get_board_posts(request, board_type):
-    if request.method == 'GET':
-        posts = Post.objects.filter(board_type=board_type).prefetch_related('comments')
-        serializer = PostListSerializer(posts, many=True)
-        return Response(serializer.data)
-
-    elif request.method == 'POST':
-        serializer = PostDetailSerializer(data=request.data)
-        if serializer.is_valid():
-            serializer.save(author=request.user, board_type=board_type)
-            return Response(serializer.data, status=status.HTTP_201_CREATED)
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    posts = Post.objects.filter(board_type=board_type).prefetch_related('comments')
+    paginator = TenResultsSetPagination()
+    result_page = paginator.paginate_queryset(posts, request)
+    serializer = PostListSerializer(result_page, many=True)
+    return paginator.get_paginated_response(serializer.data)
 
 def get_post_detail(request, pk, board_type):
     try:
@@ -61,6 +68,60 @@ def get_post_detail(request, pk, board_type):
 
     serializer = PostDetailSerializer(post)
     return Response(serializer.data)
+
+def get_comments_for_post(request, post_id):
+    comments = Comment.objects.filter(post_id=post_id)
+    paginator = TenResultsSetPagination()
+    result_page = paginator.paginate_queryset(comments, request)
+    serializer = CommentSerializer(result_page, many=True)
+    return paginator.get_paginated_response(serializer.data)
+
+def handle_comment_detail(request, post_id, comment_id):
+    try:
+        comment = Comment.objects.get(id=comment_id, post_id=post_id)
+    except Comment.DoesNotExist:
+        return Response({"error": "댓글을 찾을 수 없습니다."}, status=status.HTTP_404_NOT_FOUND)
+    
+    if request.method == 'GET':
+        serializer = CommentSerializer(comment)
+        return Response(serializer.data)
+    elif request.method == 'POST':
+        serializer = CommentSerializer(data=request.data)
+        if serializer.is_valid():
+            serializer.save(author=request.user, post_id=post_id, parent_comment=comment)
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+def update_or_delete_comment(request, post_id, comment_id):
+    try:
+        comment = Comment.objects.get(id=comment_id, post_id=post_id)
+    except Comment.DoesNotExist:
+        return Response({"error": "댓글을 찾을 수 없습니다."}, status=status.HTTP_404_NOT_FOUND)
+
+    if request.method == 'PUT':
+        if comment.author != request.user:
+            return Response({"error": "수정 권한이 없습니다."}, status=status.HTTP_403_FORBIDDEN)
+        
+        serializer = CommentSerializer(comment, data=request.data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+    elif request.method == 'DELETE':
+        if comment.author != request.user:
+            return Response({"error": "삭제 권한이 없습니다."}, status=status.HTTP_403_FORBIDDEN)
+        
+        comment.delete()
+        return Response(status=status.HTTP_204_NO_CONTENT)
+
+def get_recent_posts(request, days):
+    date_from = timezone.now() - timedelta(days=days)
+    posts = Post.objects.filter(created_at__gte=date_from)
+    paginator = TenResultsSetPagination()
+    result_page = paginator.paginate_queryset(posts, request)
+    serializer = PostListSerializer(result_page, many=True)
+    return paginator.get_paginated_response(serializer.data)
 
 @swagger_auto_schema(
     method='get',
@@ -87,7 +148,18 @@ def get_post_detail(request, pk, board_type):
 @api_view(['GET', 'POST'])
 @permission_classes([IsAuthenticatedOrReadOnly])
 def post_list(request, board_type):
-    return get_board_posts(request, board_type)
+    if request.method == 'GET':
+        return get_board_posts(request, board_type)
+    elif request.method == 'POST':
+        # 관리자가 아니면 게시글 작성 불가
+        if not request.user.is_admin():
+            return Response({"error": "공지 작성 권한이 없습니다."}, status=status.HTTP_403_FORBIDDEN)
+        
+        serializer = PostDetailSerializer(data=request.data)
+        if serializer.is_valid():
+            serializer.save(author=request.user, board_type=board_type)
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 @swagger_auto_schema(
     method='get',
@@ -213,11 +285,13 @@ def report_item(request, item_type, item_id):
     responses={200: openapi.Response('성공', PostListSerializer(many=True), examples={"application/json": [post_response_example]})}
 )
 @api_view(['GET'])
-@permission_classes([IsAdminUser])
+@permission_classes([IsAdminUser])  # 관리자만 접근 가능
 def reported_posts_list(request):
     posts = Post.objects.filter(reported_by__isnull=False).distinct()
-    serializer = PostListSerializer(posts, many=True)
-    return Response(serializer.data)
+    paginator = TenResultsSetPagination()
+    result_page = paginator.paginate_queryset(posts, request)
+    serializer = PostListSerializer(result_page, many=True)
+    return paginator.get_paginated_response(serializer.data)
 
 @swagger_auto_schema(
     method='get',
@@ -238,7 +312,7 @@ def reported_posts_list(request):
     responses={204: '게시글이 삭제되었습니다', 404: '게시글을 찾을 수 없습니다'}
 )
 @api_view(['GET', 'DELETE'])
-@permission_classes([IsAdminUser])
+@permission_classes([IsAdminUser])  # 관리자만 접근 가능
 def reported_post_detail(request, post_id):
     try:
         post = Post.objects.get(id=post_id, reported_by__isnull=False)
@@ -259,11 +333,13 @@ def reported_post_detail(request, post_id):
     responses={200: openapi.Response('성공', CommentSerializer(many=True), examples={"application/json": [comment_response_example]})}
 )
 @api_view(['GET'])
-@permission_classes([IsAdminUser])
+@permission_classes([IsAdminUser])  # 관리자만 접근 가능
 def reported_comments_list(request):
     comments = Comment.objects.filter(reported_by__isnull=False).distinct()
-    serializer = CommentSerializer(comments, many=True)
-    return Response(serializer.data)
+    paginator = TenResultsSetPagination()
+    result_page = paginator.paginate_queryset(comments, request)
+    serializer = CommentSerializer(result_page, many=True)
+    return paginator.get_paginated_response(serializer.data)
 
 @swagger_auto_schema(
     method='get',
@@ -284,7 +360,7 @@ def reported_comments_list(request):
     responses={204: '댓글이 삭제되었습니다', 404: '댓글을 찾을 수 없습니다'}
 )
 @api_view(['GET', 'DELETE'])
-@permission_classes([IsAdminUser])
+@permission_classes([IsAdminUser])  # 관리자만 접근 가능
 def reported_comment_detail(request, comment_id):
     try:
         comment = Comment.objects.get(id=comment_id, reported_by__isnull=False)
@@ -301,12 +377,53 @@ def reported_comment_detail(request, comment_id):
 @swagger_auto_schema(
     method='get',
     operation_summary="최근 게시글 조회",
-    operation_description="최근 일정 기간 동안 작성된 게시글을 검색합니다",
-    manual_parameters=[openapi.Parameter('days', openapi.IN_QUERY, description="기간(일 단위)", type=openapi.TYPE_INTEGER)],
-    responses={200: openapi.Response('성공', PostListSerializer(many=True), examples={"application/json": [post_response_example]})}
+    operation_description="최근 일정 기간 동안 작성된 게시글을 검색합니다. 'days' 파라미터를 사용하여 조회할 기간을 지정할 수 있습니다.",
+    manual_parameters=[
+        openapi.Parameter(
+            'days', 
+            openapi.IN_QUERY, 
+            description="조회할 기간을 일 단위로 지정합니다. 예: 1=1일, 7=1주일, 30=1개월, 365=1년", 
+            type=openapi.TYPE_INTEGER,
+            default=1
+        ),
+    ],
+    responses={
+        200: openapi.Response(
+            description="성공적으로 조회된 게시물 목록입니다.",
+            schema=PostListSerializer(many=True),
+            examples={
+                "application/json": {
+                    "count": 10,
+                    "next": "http://example.com/posts/search/?days=7&page=2",
+                    "previous": None,
+                    "results": [
+                        {
+                            "id": 1,
+                            "title": "게시물 제목 예시",
+                            "content": "게시물 내용 예시",
+                            "author": {"id": 1, "username": "example_user"},
+                            "board_type": "free",
+                            "created_at": "2023-01-01T00:00:00Z",
+                            "updated_at": "2023-01-01T00:00:00Z",
+                            "comment_count": 5
+                        },
+                    ]
+                }
+            }
+        ),
+        400: "잘못된 요청입니다."
+    }
 )
+
 @api_view(['GET'])
 @permission_classes([IsAuthenticatedOrReadOnly])
 def search_posts(request):
     days = int(request.query_params.get('days', 1))
-    return get_recent_posts(request, days)
+    date_from = timezone.now() - timedelta(days=days)
+    posts = Post.objects.filter(created_at__gte=date_from)
+    
+    paginator = TenResultsSetPagination()
+    result_page = paginator.paginate_queryset(posts, request)
+    serializer = PostListSerializer(result_page, many=True)
+    
+    return paginator.get_paginated_response(serializer.data)
