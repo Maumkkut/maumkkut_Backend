@@ -30,27 +30,39 @@ post_example = {
 
 comment_example = {
     'content': '예시 댓글 내용',
-    'post': 1
 }
 
 post_response_example = {
-    'id': 1,
-    'title': '예시 제목',
-    'content': '예시 내용',
-    'author': {'id': 1, 'username': 'example_user'},
-    'board_type': 'free',
-    'created_at': '2023-01-01T00:00:00Z',
-    'updated_at': '2023-01-01T00:00:00Z',
-    'comment_count': 1
+    'total_count': 1,
+    'next': None,
+    'previous': None,
+    'results': [
+        {
+            'id': 1,
+            'title': '예시 제목',
+            'content': '예시 내용',
+            'author': {'id': 1, 'username': 'example_user'},
+            'board_type': 'free',
+            'created_at': '2023-01-01T00:00:00Z',
+            'comment_count': 1
+        }
+    ]
 }
 
 comment_response_example = {
-    'id': 1,
-    'content': '예시 댓글 내용',
-    'author': {'id': 1, 'username': 'example_user'},
-    'post': 1,
-    'created_at': '2023-01-01T00:00:00Z',
-    'updated_at': '2023-01-01T00:00:00Z'
+    'total_count': 1,
+    'next': None,
+    'previous': None,
+    'results': [
+        {
+            'id': 1,
+            'content': '예시 댓글 내용',
+            'author': {'id': 1, 'username': 'example_user'},
+            'post': 1,
+            'created_at': '2023-01-01T00:00:00Z',
+            'updated_at': '2023-01-01T00:00:00Z'
+        }
+    ]
 }
 
 def get_board_posts(request, board_type):
@@ -229,7 +241,6 @@ def post_operations(request, board_type, pk):
         type=openapi.TYPE_OBJECT,
         properties={
             'content': openapi.Schema(type=openapi.TYPE_STRING, description='댓글 내용'),
-            'post': openapi.Schema(type=openapi.TYPE_INTEGER, description='게시글 ID'),
         },
         example=comment_example
     ),
@@ -357,7 +368,7 @@ def report_item(request, item_type, item_id):
     responses={200: openapi.Response('성공', PostListSerializer(many=True), examples={"application/json": [post_response_example]})}
 )
 @api_view(['GET'])
-@permission_classes([IsAdminUser])  # 관리자만 접근 가능
+@permission_classes([IsAdminUser])
 def reported_posts_list(request):
     posts = Post.objects.filter(reported_by__isnull=False).distinct()
     paginator = TenResultsSetPagination()
