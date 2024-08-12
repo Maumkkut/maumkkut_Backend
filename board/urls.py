@@ -4,7 +4,7 @@ from django.urls import path
 urlpatterns = [
     # 게시판 URL 패턴
     path('board/<str:board_type>/', views.post_list, name='post-list'),
-    path('board/<str:board_type>/<int:pk>/', views.post_detail, name='post-detail'),
+    path('board/<str:board_type>/<int:pk>/', views.post_operations, name='post_operations'),
 
     # 댓글 URL 패턴
     path('board/<int:post_id>/comments/', views.comment_list, name='comment-list'),

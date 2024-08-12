@@ -5,6 +5,7 @@ class Post(models.Model):
     BOARD_CHOICES = [
         ('free', '자유게시판'),
         ('travel', '여행 후기 게시판'),
+        ('notice', '공지사항 게시판'),
     ]
     
     title = models.CharField(max_length=200)
