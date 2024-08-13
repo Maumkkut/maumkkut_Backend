@@ -3,13 +3,13 @@ from django.urls import path
 
 urlpatterns = [
     # 게시판 URL 패턴
-    path('board/<str:board_type>/', views.post_list, name='post-list'),
-    path('board/<str:board_type>/<int:pk>/', views.post_operations, name='post_operations'),
+    path('<str:board_type>/', views.post_list, name='post-list'),
+    path('<str:board_type>/<int:pk>/', views.post_operations, name='post_operations'),
 
     # 댓글 URL 패턴
-    path('board/<int:post_id>/comments/', views.comment_list, name='comment-list'),
-    path('board/<int:post_id>/comments/<int:comment_id>/', views.comment_operations, name='comment-operations'),
-    path('board/<int:post_id>/comments/<int:comment_id>/detail/', views.comment_detail, name='comment-detail'),
+    path('<int:post_id>/comments/', views.comment_list, name='comment-list'),
+    path('<int:post_id>/comments/<int:comment_id>/', views.comment_operations, name='comment-operations'),
+    path('<int:post_id>/comments/<int:comment_id>/detail/', views.comment_detail, name='comment-detail'),
 
     # 통합 신고 기능 URL 패턴
     path('report/<str:item_type>/<int:item_id>/', views.report_item, name='report-item'),
