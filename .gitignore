@@ -515,3 +515,13 @@ Temporary Items
 ### macOS Patch ###
 # iCloud generated files
 *.icloud
+
+### PyCharm ###
+# JetBrains IDE 관련 설정 파일 무시
+.idea/
+
+### macOS ###
+# General
+.DS_Store
+.AppleDouble
+.LSOverride

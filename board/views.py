@@ -164,7 +164,7 @@ def post_list(request, board_type):
         return get_board_posts(request, board_type)
     elif request.method == 'POST':
         # 관리자가 아니면 게시글 작성 불가
-        if not request.user.is_admin():
+        if board_type == 'notice' and not request.user.is_admin():
             return Response({"error": "공지 작성 권한이 없습니다."}, status=status.HTTP_403_FORBIDDEN)
         
         serializer = PostDetailSerializer(data=request.data)
