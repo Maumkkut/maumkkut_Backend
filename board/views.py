@@ -9,6 +9,7 @@ from drf_yasg import openapi
 from .models import Post, Comment
 from .serializers import CommentSerializer, PostDetailSerializer, PostListSerializer
 from rest_framework.pagination import PageNumberPagination
+from django.db.models import Q
 
 class TenResultsSetPagination(PageNumberPagination):
     page_size = 10  # 페이지당 10개 항목
@@ -461,52 +462,54 @@ def reported_comment_detail(request, comment_id):
     elif request.method == 'DELETE':
         comment.delete()
         return Response({"message": "댓글이 성공적으로 삭제되었습니다."}, status=status.HTTP_204_NO_CONTENT)
-    
-def get_filtered_posts(days, board_type=None):
-    date_from = timezone.now() - timedelta(days=days)
-    posts = Post.objects.filter(created_at__gte=date_from)
+from rest_framework.exceptions import ValidationError
+
+def get_filtered_posts(days=None, board_type=None, search_type=None, content=None):
+    posts = Post.objects.all()
+
+    # days 필터 적용
+    if days == 'none':
+        pass
+    elif days and days > 0:
+            date_from = timezone.now() - timedelta(days=int(days))
+            posts = posts.filter(created_at__gte=date_from)
 
     if board_type:
         posts = posts.filter(board_type=board_type)
     
+    # search_type과 content 필터 적용
+    if search_type == 'none':
+        pass
+    elif search_type and content:
+        if search_type == 'title':
+            posts = posts.filter(title__icontains=content)
+        elif search_type == 'content':
+            posts = posts.filter(content__icontains=content)
+        elif search_type == 'author':
+            posts = posts.filter(author__username__icontains=content)
+
     return posts.order_by('-created_at')
+
 
 @swagger_auto_schema(
     method='get',
-    operation_summary="최근 게시글 조회",
-    operation_description="최근 일정 기간 동안 작성된 게시글을 검색합니다. 'days'와 'board_type' 파라미터를 사용하여 조회할 기간과 게시판 타입을 지정할 수 있습니다.",
+    operation_summary="최근 게시글 조회 및 검색",
+    operation_description="최근 일정 기간 동안 작성된 게시글을 검색합니다. 'days', 'board_type', 'search_type', 'content' 파라미터를 사용하여 검색할 기간, 게시판 타입, 검색 유형(title, content, author) 및 검색 내용을 지정할 수 있습니다.",
+    manual_parameters=[],
     responses={
         200: openapi.Response(
             description="성공적으로 조회된 게시물 목록입니다.",
             schema=PostListSerializer(many=True)
         ),
         400: "잘못된 요청입니다."
-    },
-    # 경로 파라미터 정의
-    manual_parameters=[
-        openapi.Parameter(
-            'board_type', 
-            openapi.IN_PATH, 
-            description="게시판 타입을 지정합니다. 예: 'free', 'notice'", 
-            type=openapi.TYPE_STRING
-        ),
-        openapi.Parameter(
-            'days', 
-            openapi.IN_PATH, 
-            description="조회할 기간을 일 단위로 지정합니다. 예: 1=1일, 7=1주일, 30=1개월, 365=1년", 
-            type=openapi.TYPE_INTEGER
-        ),
-    ]
+    }
 )
-
 @api_view(['GET'])
 @permission_classes([IsAuthenticatedOrReadOnly])
-def search_posts(request, board_type, days):
+def search_posts(request, days=None, board_type=None, search_type=None, content=None):
 
-    # 필터된 게시글을 가져오는 함수 호출
-    posts = get_filtered_posts(days, board_type)
-    print(posts)
-    # 페이지네이션 처리
+    posts = get_filtered_posts(days, board_type, search_type, content)
+
     paginator = TenResultsSetPagination()
     result_page = paginator.paginate_queryset(posts, request)
     serializer = PostListSerializer(result_page, many=True)
