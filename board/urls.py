@@ -5,6 +5,7 @@ urlpatterns = [
     # 게시판 URL 패턴
     path('<str:board_type>/', views.post_list, name='post-list'),
     path('<str:board_type>/<int:pk>/', views.post_operations, name='post_operations'),
+    path('<str:board_type>/<int:pk>/like/', views.like_post, name='like-post'),
 
     # 댓글 URL 패턴
     path('<int:post_id>/comments/', views.comment_list, name='comment-list'),

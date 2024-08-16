@@ -15,6 +15,8 @@ class Post(models.Model):
     report_count = models.IntegerField(default=0)  # 신고 횟수
     is_reported = models.BooleanField(default=False)  # 신고 상태
     board_type = models.CharField(max_length=20, choices=BOARD_CHOICES, default='free')  # 게시판 타입
+    liked_users = models.ManyToManyField(settings.AUTH_USER_MODEL, related_name='liked_posts', blank=True)
+
 
 class Comment(models.Model):
     post = models.ForeignKey(Post, related_name='comments', on_delete=models.CASCADE)
