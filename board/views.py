@@ -9,7 +9,6 @@ from drf_yasg import openapi
 from .models import Post, Comment
 from .serializers import CommentSerializer, PostDetailSerializer, PostListSerializer
 from rest_framework.pagination import PageNumberPagination
-from rest_framework.response import Response
 
 class TenResultsSetPagination(PageNumberPagination):
     page_size = 10  # 페이지당 10개 항목
@@ -44,7 +43,8 @@ post_response_example = {
             'author': {'id': 1, 'username': 'example_user'},
             'board_type': 'free',
             'created_at': '2023-01-01T00:00:00Z',
-            'comment_count': 1
+            'comment_count': 1,
+            'liked_users_count': 5
         }
     ]
 }
@@ -65,6 +65,7 @@ comment_response_example = {
     ]
 }
 
+
 def get_board_posts(request, board_type):
     posts = Post.objects.filter(board_type=board_type).prefetch_related('comments')
     paginator = TenResultsSetPagination()
@@ -76,7 +77,7 @@ def get_post_detail(request, pk, board_type):
     try:
         post = Post.objects.prefetch_related('comments').get(pk=pk, board_type=board_type)
     except Post.DoesNotExist:
-        return Response(status=status.HTTP_404_NOT_FOUND)
+        return Response({"error": "게시글을 찾을 수 없습니다."}, status=status.HTTP_404_NOT_FOUND)
 
     serializer = PostDetailSerializer(post)
     return Response(serializer.data)
@@ -125,7 +126,7 @@ def update_or_delete_comment(request, post_id, comment_id):
             return Response({"error": "삭제 권한이 없습니다."}, status=status.HTTP_403_FORBIDDEN)
         
         comment.delete()
-        return Response(status=status.HTTP_204_NO_CONTENT)
+        return Response({"message": "댓글이 성공적으로 삭제되었습니다."}, status=status.HTTP_204_NO_CONTENT)
 
 def get_recent_posts(request, days):
     date_from = timezone.now() - timedelta(days=days)
@@ -231,8 +232,7 @@ def post_operations(request, board_type, pk):
             return Response({"error": "삭제 권한이 없습니다."}, status=status.HTTP_403_FORBIDDEN)
         
         post.delete()
-        return Response(status=status.HTTP_204_NO_CONTENT)
-
+        return Response({"message": "게시글이 성공적으로 삭제되었습니다."}, status=status.HTTP_204_NO_CONTENT)
 
 @swagger_auto_schema(
     method='post',
@@ -335,7 +335,11 @@ def comment_operations(request, post_id, comment_id):
         openapi.Parameter('item_id', openapi.IN_PATH, description="아이템 ID", type=openapi.TYPE_INTEGER)
     ],
     operation_description="게시글 또는 댓글을 신고합니다",
-    responses={200: '신고가 완료되었습니다', 400: '잘못된 요청', 404: '아이템을 찾을 수 없습니다'}
+    responses={
+        200: openapi.Response('신고가 완료되었습니다', examples={"application/json": {"message": "신고가 완료되었습니다"}}),
+        400: openapi.Response('잘못된 요청', examples={"application/json": {"error": "잘못된 요청입니다"}}),
+        404: openapi.Response('아이템을 찾을 수 없습니다', examples={"application/json": {"error": "아이템을 찾을 수 없습니다"}})
+    }
 )
 @api_view(['POST'])
 @permission_classes([IsAuthenticatedOrReadOnly])
@@ -407,7 +411,7 @@ def reported_post_detail(request, post_id):
         return Response(serializer.data)
     elif request.method == 'DELETE':
         post.delete()
-        return Response(status=status.HTTP_204_NO_CONTENT)
+        return Response({"message": "게시글이 성공적으로 삭제되었습니다."}, status=status.HTTP_204_NO_CONTENT)
 
 @swagger_auto_schema(
     method='get',
@@ -455,7 +459,7 @@ def reported_comment_detail(request, comment_id):
         return Response(serializer.data)
     elif request.method == 'DELETE':
         comment.delete()
-        return Response(status=status.HTTP_204_NO_CONTENT)
+        return Response({"message": "댓글이 성공적으로 삭제되었습니다."}, status=status.HTTP_204_NO_CONTENT)
 
 @swagger_auto_schema(
     method='get',
@@ -497,7 +501,6 @@ def reported_comment_detail(request, comment_id):
         400: "잘못된 요청입니다."
     }
 )
-
 @api_view(['GET'])
 @permission_classes([IsAuthenticatedOrReadOnly])
 def search_posts(request):
@@ -510,3 +513,31 @@ def search_posts(request):
     serializer = PostListSerializer(result_page, many=True)
     
     return paginator.get_paginated_response(serializer.data)
+
+@swagger_auto_schema(
+    method='post',
+    operation_summary="게시글 좋아요/좋아요 취소",
+    manual_parameters=[
+        openapi.Parameter('board_type', openapi.IN_PATH, description="게시판 타입", type=openapi.TYPE_STRING),
+        openapi.Parameter('pk', openapi.IN_PATH, description="게시글 ID", type=openapi.TYPE_INTEGER)
+    ],
+    operation_description="게시글에 좋아요를 누르거나 좋아요를 취소합니다",
+    responses={
+        200: openapi.Response(description="요청이 성공적으로 처리되었습니다.", examples={"application/json": {"message": "좋아요가 완료되었습니다"}}),
+        404: openapi.Response(description="게시글을 찾을 수 없습니다.", examples={"application/json": {"error": "게시글을 찾을 수 없습니다"}})
+    }
+)
+@api_view(['POST'])
+@permission_classes([IsAuthenticatedOrReadOnly])
+def like_post(request, board_type, pk):
+    try:
+        post = Post.objects.get(pk=pk, board_type=board_type)
+    except Post.DoesNotExist:
+        return Response({"error": "게시글을 찾을 수 없습니다."}, status=status.HTTP_404_NOT_FOUND)
+    
+    if request.user in post.liked_users.all():
+        post.liked_users.remove(request.user)
+        return Response({"message": "좋아요가 취소되었습니다."}, status=status.HTTP_200_OK)
+    else:
+        post.liked_users.add(request.user)
+        return Response({"message": "좋아요가 완료되었습니다."}, status=status.HTTP_200_OK)

@@ -22,18 +22,20 @@ class PostListSerializer(serializers.ModelSerializer):
     comment_count = serializers.IntegerField(source='comments.count', read_only=True)
     board_type = serializers.ChoiceField(choices=Post.BOARD_CHOICES, default='free')
     author_username = serializers.CharField(source='author.username', read_only=True)
+    liked_users_count = serializers.IntegerField(source='liked_users.count', read_only=True)
 
     class Meta:
         model = Post
-        fields = ['id', 'title', 'content', 'author_username', 'created_at', 'board_type', 'comment_count']
+        fields = ['id', 'title', 'content', 'author_username', 'created_at', 'board_type', 'comment_count', 'liked_users_count']
         read_only_fields = ['author_username', 'created_at']
 
 class PostDetailSerializer(serializers.ModelSerializer):
     comments = CommentSerializer(many=True, read_only=True)
     board_type = serializers.ChoiceField(choices=Post.BOARD_CHOICES, default='free')
     author_username = serializers.CharField(source='author.username', read_only=True)
+    liked_users_count = serializers.IntegerField(source='liked_users.count', read_only=True)
 
     class Meta:
         model = Post
-        fields = ['id', 'title', 'content', 'author_username', 'created_at', 'board_type', 'comments']
+        fields = ['id', 'title', 'content', 'author_username', 'created_at', 'board_type', 'comments', 'liked_users_count']
         read_only_fields = ['author_username', 'created_at']
