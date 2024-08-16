@@ -65,9 +65,9 @@ comment_response_example = {
     ]
 }
 
-
 def get_board_posts(request, board_type):
-    posts = Post.objects.filter(board_type=board_type).prefetch_related('comments')
+    # 게시글을 최신순으로 정렬
+    posts = Post.objects.filter(board_type=board_type).prefetch_related('comments').order_by('-created_at')
     paginator = TenResultsSetPagination()
     result_page = paginator.paginate_queryset(posts, request)
     serializer = PostListSerializer(result_page, many=True)
@@ -83,7 +83,8 @@ def get_post_detail(request, pk, board_type):
     return Response(serializer.data)
 
 def get_comments_for_post(request, post_id):
-    comments = Comment.objects.filter(post_id=post_id)
+    # 댓글을 최신순으로 정렬
+    comments = Comment.objects.filter(post_id=post_id).order_by('-created_at')
     paginator = TenResultsSetPagination()
     result_page = paginator.paginate_queryset(comments, request)
     serializer = CommentSerializer(result_page, many=True)
@@ -130,7 +131,7 @@ def update_or_delete_comment(request, post_id, comment_id):
 
 def get_recent_posts(request, days):
     date_from = timezone.now() - timedelta(days=days)
-    posts = Post.objects.filter(created_at__gte=date_from)
+    posts = Post.objects.filter(created_at__gte=date_from).order_by('-created_at')
     paginator = TenResultsSetPagination()
     result_page = paginator.paginate_queryset(posts, request)
     serializer = PostListSerializer(result_page, many=True)
@@ -460,54 +461,52 @@ def reported_comment_detail(request, comment_id):
     elif request.method == 'DELETE':
         comment.delete()
         return Response({"message": "댓글이 성공적으로 삭제되었습니다."}, status=status.HTTP_204_NO_CONTENT)
+    
+def get_filtered_posts(days, board_type=None):
+    date_from = timezone.now() - timedelta(days=days)
+    posts = Post.objects.filter(created_at__gte=date_from)
+
+    if board_type:
+        posts = posts.filter(board_type=board_type)
+    
+    return posts.order_by('-created_at')
 
 @swagger_auto_schema(
     method='get',
     operation_summary="최근 게시글 조회",
-    operation_description="최근 일정 기간 동안 작성된 게시글을 검색합니다. 'days' 파라미터를 사용하여 조회할 기간을 지정할 수 있습니다.",
-    manual_parameters=[
-        openapi.Parameter(
-            'days', 
-            openapi.IN_QUERY, 
-            description="조회할 기간을 일 단위로 지정합니다. 예: 1=1일, 7=1주일, 30=1개월, 365=1년", 
-            type=openapi.TYPE_INTEGER,
-            default=1
-        ),
-    ],
+    operation_description="최근 일정 기간 동안 작성된 게시글을 검색합니다. 'days'와 'board_type' 파라미터를 사용하여 조회할 기간과 게시판 타입을 지정할 수 있습니다.",
     responses={
         200: openapi.Response(
             description="성공적으로 조회된 게시물 목록입니다.",
-            schema=PostListSerializer(many=True),
-            examples={
-                "application/json": {
-                    "count": 10,
-                    "next": "http://example.com/posts/search/?days=7&page=2",
-                    "previous": None,
-                    "results": [
-                        {
-                            "id": 1,
-                            "title": "게시물 제목 예시",
-                            "content": "게시물 내용 예시",
-                            "author": {"id": 1, "username": "example_user"},
-                            "board_type": "free",
-                            "created_at": "2023-01-01T00:00:00Z",
-                            "updated_at": "2023-01-01T00:00:00Z",
-                            "comment_count": 5
-                        },
-                    ]
-                }
-            }
+            schema=PostListSerializer(many=True)
         ),
         400: "잘못된 요청입니다."
-    }
+    },
+    # 경로 파라미터 정의
+    manual_parameters=[
+        openapi.Parameter(
+            'board_type', 
+            openapi.IN_PATH, 
+            description="게시판 타입을 지정합니다. 예: 'free', 'notice'", 
+            type=openapi.TYPE_STRING
+        ),
+        openapi.Parameter(
+            'days', 
+            openapi.IN_PATH, 
+            description="조회할 기간을 일 단위로 지정합니다. 예: 1=1일, 7=1주일, 30=1개월, 365=1년", 
+            type=openapi.TYPE_INTEGER
+        ),
+    ]
 )
+
 @api_view(['GET'])
 @permission_classes([IsAuthenticatedOrReadOnly])
-def search_posts(request):
-    days = int(request.query_params.get('days', 1))
-    date_from = timezone.now() - timedelta(days=days)
-    posts = Post.objects.filter(created_at__gte=date_from)
-    
+def search_posts(request, board_type, days):
+
+    # 필터된 게시글을 가져오는 함수 호출
+    posts = get_filtered_posts(days, board_type)
+    print(posts)
+    # 페이지네이션 처리
     paginator = TenResultsSetPagination()
     result_page = paginator.paginate_queryset(posts, request)
     serializer = PostListSerializer(result_page, many=True)
