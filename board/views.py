@@ -468,7 +468,7 @@ def get_filtered_posts(days=None, board_type=None, search_type=None, content=Non
     posts = Post.objects.all()
 
     # days 필터 적용
-    if days == 'none':
+    if days == 1000:
         pass
     elif days and days > 0:
             date_from = timezone.now() - timedelta(days=int(days))
@@ -506,7 +506,7 @@ def get_filtered_posts(days=None, board_type=None, search_type=None, content=Non
 )
 @api_view(['GET'])
 @permission_classes([IsAuthenticatedOrReadOnly])
-def search_posts(request, days=None, board_type=None, search_type=None, content=None):
+def search_posts(request, days, board_type, search_type, content):
 
     posts = get_filtered_posts(days, board_type, search_type, content)
 

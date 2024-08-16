@@ -23,5 +23,4 @@ urlpatterns = [
 
     # 공통 조회 기능 URL 패턴
     path('posts/search/<int:days>/<str:board_type>/<str:search_type>/<str:content>/', views.search_posts, name='search_posts'),
-
 ]
