@@ -41,6 +41,7 @@ INSTALLED_APPS = [
     'allauth.account',
     'rest_framework',
     'rest_framework.authtoken',
+    'django_filters',
     # 'rest_framework.simplejwt',
     'dj_rest_auth',
     'dj_rest_auth.registration',
@@ -191,5 +192,16 @@ REST_USE_JWT = True
 #         'OAUTH_PKCE_ENABLED': True,
 #     }
 # }
+
+SWAGGER_SETTINGS = {
+    'SECURITY_DEFINITIONS': {
+        'api_key': {
+            'type': 'apiKey',
+            'in': 'header',
+            'name': 'Authorization'
+        }
+    },
+    'USE_SESSION_AUTH': False,
+}
 
 AUTH_USER_MODEL = 'accounts.User'
