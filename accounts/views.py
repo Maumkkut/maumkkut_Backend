@@ -63,13 +63,26 @@ def google_callback(request):
         
         # 소셜로그인 계정 유무 확인
         if created:
-            # 새로 생성된 사용자에 대한 추가 설정을 여기에 추가할 수 있습니다.
+            # 새로 생성된 사용자에 대한 추가 설정
             pass
         
         # 사용자를 Django 세션에 로그인
         login(request, user, backend='django.contrib.auth.backends.ModelBackend')
-        
-        # 성공적으로 로그인 했음을 클라이언트에게 알림
+
+        # 추가 정보 필요할 경우 리디렉션
+        if not user.address or not user.nickname:
+            return JsonResponse(
+                {
+                    "user": {
+                        "id": user.id,
+                        "email": user.email,
+                    },
+                    "message": "Login successful, please complete your profile.",
+                    "redirect_url": "http://localhost:5173/signin/loading"
+                },
+                status=status.HTTP_200_OK,
+            )
+        # 로그인 성공
         return JsonResponse(
             {
                 "user": {
@@ -155,13 +168,26 @@ def kakao_callback(request):
         
         # 소셜로그인 계정 유무 확인
         if created:
-            # 새로 생성된 사용자에 대한 추가 설정을 여기에 추가할 수 있습니다.
+            # 새로 생성된 사용자에 대한 추가 설정
             pass
         
         # 사용자를 Django 세션에 로그인
         login(request, user, backend='django.contrib.auth.backends.ModelBackend')
-        
-        # 성공적으로 로그인 했음을 클라이언트에게 알림
+
+        # 추가 정보 필요할 경우 리디렉션
+        if not user.address or not user.nickname:
+            return JsonResponse(
+                {
+                    "user": {
+                        "id": user.id,
+                        "email": user.email,
+                    },
+                    "message": "Login successful, please complete your profile.",
+                    "redirect_url": "http://localhost:5173/signin/loading"
+                },
+                status=status.HTTP_200_OK,
+            )
+        # 로그인 성공
         return JsonResponse(
             {
                 "user": {
@@ -178,3 +204,10 @@ def kakao_callback(request):
     
     except Exception as e:
         return JsonResponse({"status": 400, "message": str(e)}, status=status.HTTP_400_BAD_REQUEST)
+    
+def check_user_info(request):
+    user = request.user
+    if user.is_authenticated:
+        profile_complete = bool(user.phone_number)
+        return JsonResponse({'profile_complete': profile_complete})
+    return JsonResponse({"status": 401, "message": "인증되지 않은 사용자"})
