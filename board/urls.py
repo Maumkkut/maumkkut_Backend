@@ -22,6 +22,5 @@ urlpatterns = [
     path('reported/comments/<int:comment_id>/', views.reported_comment_detail, name='reported-comment-detail'),
 
     # 공통 조회 기능 URL 패턴
-    path('posts/search/<int:days>/<str:board_type>/<str:search_type>/<str:content>/', views.search_posts, name='search_posts'),
-
+    path('posts/search/', views.search_posts, name='search_posts'),
 ]
