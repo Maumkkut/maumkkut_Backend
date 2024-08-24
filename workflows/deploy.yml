@@ -4,7 +4,8 @@ on:
   push:
     branches:
       - develop  # develop  브랜치에 푸시될 때 실행
-
+  pull_request:
+      - develop
 jobs:
   deploy:
     runs-on: ubuntu-latest
