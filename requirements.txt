@@ -51,7 +51,6 @@ openai==0.28.0
 outcome==1.2.0
 packaging==23.1
 pillow==10.3.0
-pkg_resources==0.0.0
 placebo==0.9.0
 pyasn1==0.6.0
 pyasn1_modules==0.4.0
