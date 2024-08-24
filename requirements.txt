@@ -42,7 +42,7 @@ idna==3.7
 imageio==2.34.1
 inflection==0.5.1
 jmespath==1.0.1
-kappa==0.6.0
+# kappa==0.6.0
 MarkupSafe==2.1.5
 multidict==6.0.5
 # numpy==1.26.4
