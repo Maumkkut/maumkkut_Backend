@@ -27,7 +27,12 @@ jobs:
         pip install --upgrade pip
         pip install --upgrade setuptools wheel  # Ensure setuptools and wheel are up-to-date
         pip install -r requirements.txt
-
+   
+    - name: Verify SSH Host Key
+      run: |
+        mkdir -p ~/.ssh
+        ssh-keyscan -H $GCP_HOST >> ~/.ssh/known_hosts
+   
     - name: Run tests
       run: |
         . venv/bin/activate
