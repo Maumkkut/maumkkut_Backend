@@ -51,3 +51,16 @@ jobs:
           sudo systemctl restart gunicorn
         EOF
 
+    - name: Notify Discord on success
+      if: success()  # 빌드가 성공했을 때만 실행
+      env:
+        DISCORD_WEBHOOK_URL: ${{ secrets.DISCORD_WEBHOOK_URL }}
+      run: |
+        curl -X POST -H 'Content-Type: application/json' --data '{"content":"Build completed successfully. Check the artifacts here: ${{ steps.upload-artifact.outputs.artifact-url }}"}' $DISCORD_WEBHOOK_URL
+
+    - name: Notify Discord on failure
+      if: failure()  # 빌드가 실패했을 때만 실행
+      env:
+        DISCORD_WEBHOOK_URL: ${{ secrets.DISCORD_WEBHOOK_URL }}
+      run: |
+        curl -X POST -H 'Content-Type: application/json' --data '{"content":"Build failed. Please check the logs for details."}' $DISCORD_WEBHOOK_URL
