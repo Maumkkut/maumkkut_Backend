@@ -31,7 +31,7 @@ jobs:
     - name: Verify SSH Host Key
       run: |
         mkdir -p ~/.ssh
-        ssh-keyscan -H $GCP_HOST >> ~/.ssh/known_hosts
+        ssh-keyscan -H ${{ secrets.GCP_HOST }} >> ~/.ssh/known_hosts
    
     - name: Run tests
       run: |
