@@ -43,7 +43,7 @@ jobs:
         GCP_SSH_KEY: ${{ secrets.GCP_SSH_KEY }}
         GCP_USER: ${{ secrets.GCP_USER }}
         GCP_HOST: ${{ secrets.GCP_HOST }}
-        GCP_PATH: /home/krozv_code/maumkkut_Backend
+        GCP_PATH: /home/krozv_code
 
       run: |
         echo "$GCP_SSH_KEY" > /tmp/key
