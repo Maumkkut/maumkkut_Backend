@@ -1,0 +1,51 @@
+name: Django CI/CD
+
+on:
+  push:
+    branches:
+      - develop  # develop  브랜치에 푸시될 때 실행
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v3
+
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.x'
+
+    - name: Install dependencies
+      run: |
+        python -m venv venv
+        . venv/bin/activate
+        pip install -r requirements.txt
+
+    - name: Run tests
+      run: |
+        . venv/bin/activate
+        python manage.py test
+
+    - name: Deploy to GCP
+      env:
+        GCP_SSH_KEY: ${{ secrets.GCP_SSH_KEY }}
+        GCP_USER: ${{ secrets.GCP_USER }}
+        GCP_HOST: ${{ secrets.GCP_HOST }}
+        GCP_PATH: /home/your-username/your-repo
+
+      run: |
+        echo "$GCP_SSH_KEY" > /tmp/key
+        chmod 600 /tmp/key
+        rsync -avz -e "ssh -i /tmp/key" --exclude 'venv' ./ $GCP_USER@$GCP_HOST:$GCP_PATH
+        ssh -i /tmp/key $GCP_USER@$GCP_HOST << EOF
+          cd $GCP_PATH
+          source venv/bin/activate
+          pip install -r requirements.txt
+          python manage.py migrate
+          python manage.py collectstatic --noinput
+          sudo systemctl restart gunicorn
+        EOF
+
