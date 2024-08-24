@@ -5,6 +5,7 @@ on:
     branches:
       - develop  # develop  브랜치에 푸시될 때 실행
   pull_request:
+    branches:
       - develop
 jobs:
   deploy:
