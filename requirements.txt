@@ -7,10 +7,8 @@ asgiref==3.8.1
 async-timeout==4.0.3
 attrs==23.1.0
 backports.zoneinfo==0.2.1
-beautifulsoup4==4.12.3
 boto3==1.34.145
 botocore==1.34.145
-bs4==0.0.1
 cachetools==5.3.3
 certifi==2024.7.4
 cffi==1.16.0
@@ -48,7 +46,6 @@ jmespath==1.0.1
 kappa==0.6.0
 MarkupSafe==2.1.5
 multidict==6.0.5
-numpy==1.24.4
 oauthlib==3.2.2
 openai==0.28.0
 outcome==1.2.0
