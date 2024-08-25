@@ -65,7 +65,7 @@ jobs:
         DISCORD_WEBHOOK_URL: ${{ secrets.DISCORD_WEBHOOK_URL }} 
       run: |
         COMMIT_MSG="${{ github.event.head_commit.message }}"
-        curl -X POST -H 'Content-Type: application/json' --data "{\"content\":\"빌드가 성공적으로 완료되었습니다. 커밋 메시지: ${COMMIT_MSG}. 아티팩트는 여기서 확인하세요: ${{ steps.upload-artifact.outputs.artifact-url }}\"}" $DISCORD_WEBHOOK_URL
+        curl -X POST -H 'Content-Type: application/json' --data "{\"content\":\"빌드가 성공적으로 완료되었습니다. 커밋 메시지: ${COMMIT_MSG}.\"}" $DISCORD_WEBHOOK_URL
     
     - name: Notify Discord on failure
       if: failure()  # 빌드가 실패했을 때만 실행
