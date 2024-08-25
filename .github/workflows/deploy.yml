@@ -62,13 +62,15 @@ jobs:
     - name: Notify Discord on success
       if: success()  # 빌드가 성공했을 때만 실행
       env:
-        DISCORD_WEBHOOK_URL: ${{ secrets.DISCORD_WEBHOOK_URL }}
+        DISCORD_WEBHOOK_URL: ${{ secrets.DISCORD_WEBHOOK_URL }} 
       run: |
-        curl -X POST -H 'Content-Type: application/json' --data '{"content":"Build completed successfully. Check the artifacts here: ${{ steps.upload-artifact.outputs.artifact-url }}"}' $DISCORD_WEBHOOK_URL
+        curl -X POST -H 'Content-Type: application/json' --data '{"content":"Build completed successfully for commit: `{{ github.event.head_commit.message }}`. Check the artifacts here: ${{ steps.upload-artifact.outputs.artifact-url }}"}' $DISCORD_WEBHOOK_URL
 
     - name: Notify Discord on failure
       if: failure()  # 빌드가 실패했을 때만 실행
       env:
         DISCORD_WEBHOOK_URL: ${{ secrets.DISCORD_WEBHOOK_URL }}
       run: |
-        curl -X POST -H 'Content-Type: application/json' --data '{"content":"Build failed. Please check the logs for details."}' $DISCORD_WEBHOOK_URL
+        COMMIT_MSG=$(echo "${{ github.event.head_commit.message }}")
+        ERROR_LOG=$(tail -n 50 /path/to/your/log/file.log)  # 로그 파일의 경로에 맞게 수정
+        curl -X POST -H 'Content-Type: application/json' --data "$(echo '{"content":"Build failed for commit: `'"$COMMIT_MSG"'`. Error log: ```'"$ERROR_LOG"'```"}' | jq -c .)" $DISCORD_WEBHOOK_URL
