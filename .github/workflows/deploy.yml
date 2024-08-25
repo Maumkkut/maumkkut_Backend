@@ -22,6 +22,7 @@ jobs:
         python-version: '3.8'
 
     - name: Install dependencies
+      working-directory: /home/krozv_code/maumkkut_Backend
       run: |
         python -m venv venv
         . venv/bin/activate
@@ -44,7 +45,7 @@ jobs:
         GCP_SSH_KEY: ${{ secrets.GCP_SSH_KEY }}
         GCP_USER: ${{ secrets.GCP_USER }}
         GCP_HOST: ${{ secrets.GCP_HOST }}
-        GCP_PATH: /home/krozv_code
+        GCP_PATH: /home/krozv_code/maumkkut_Backend
 
       run: |
         echo "$GCP_SSH_KEY" > /tmp/key
