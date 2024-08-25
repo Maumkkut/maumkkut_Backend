@@ -21,6 +21,13 @@ jobs:
       with:
         python-version: '3.8'
 
+    - name: Debug current directory
+      run: |
+        echo "Current working directory: $(pwd)"
+        ls -la
+        echo "Contents of maumkkut_Backend directory:"
+        ls -la maumkkut_Backend
+
     - name: Install dependencies
       working-directory: ./maumkkut_Backend
       run: |
