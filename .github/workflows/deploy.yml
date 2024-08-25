@@ -29,7 +29,6 @@ jobs:
         ls -la maumkkut_Backend
 
     - name: Install dependencies
-      working-directory: ./maumkkut_Backend
       run: |
         python -m venv venv
         . venv/bin/activate
