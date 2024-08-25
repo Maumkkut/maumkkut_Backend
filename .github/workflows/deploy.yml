@@ -64,13 +64,18 @@ jobs:
       env:
         DISCORD_WEBHOOK_URL: ${{ secrets.DISCORD_WEBHOOK_URL }} 
       run: |
-        curl -X POST -H 'Content-Type: application/json' --data '{"content":"Build completed successfully for commit: `{{ github.event.head_commit.message }}`. Check the artifacts here: ${{ steps.upload-artifact.outputs.artifact-url }}"}' $DISCORD_WEBHOOK_URL
-
+        COMMIT_MSG="${{ github.event.head_commit.message }}"
+        # 메시지에서 특수 문자를 제대로 처리하기 위해 JSON 데이터를 올바르게 포맷합니다.
+        curl -X POST -H 'Content-Type: application/json' \
+          --data "{\"content\":\"빌드가 성공적으로 완료되었습니다. 커밋 메시지: '${COMMIT_MSG}'. 아티팩트는 여기를 확인하세요: ${{ steps.upload-artifact.outputs.artifact-url }}\"}" \
+      $DISCORD_WEBHOOK_URL
     - name: Notify Discord on failure
       if: failure()  # 빌드가 실패했을 때만 실행
       env:
         DISCORD_WEBHOOK_URL: ${{ secrets.DISCORD_WEBHOOK_URL }}
       run: |
-        COMMIT_MSG=$(echo "${{ github.event.head_commit.message }}")
-        ERROR_LOG=$(tail -n 50 /path/to/your/log/file.log)  # 로그 파일의 경로에 맞게 수정
-        curl -X POST -H 'Content-Type: application/json' --data "$(echo '{"content":"Build failed for commit: `'"$COMMIT_MSG"'`. Error log: ```'"$ERROR_LOG"'```"}' | jq -c .)" $DISCORD_WEBHOOK_URL
+        COMMIT_MSG="${{ github.event.head_commit.message }}"
+        # Escape double quotes in commit message
+        ESCAPED_COMMIT_MSG=$(echo "$COMMIT_MSG" | sed 's/"/\\"/g')
+        curl -X POST -H 'Content-Type: application/json' --data "{\"content\":\"Build failed for commit: $ESCAPED_COMMIT_MSG.\"}" $DISCORD_WEBHOOK_URL
+
