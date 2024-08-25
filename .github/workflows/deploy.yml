@@ -22,7 +22,7 @@ jobs:
         python-version: '3.8'
 
     - name: Install dependencies
-      working-directory: /home/krozv_code/maumkkut_Backend
+      working-directory: ./maumkkut_Backend
       run: |
         python -m venv venv
         . venv/bin/activate
