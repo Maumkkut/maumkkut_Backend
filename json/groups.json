@@ -1,0 +1,74 @@
+[
+{
+    "model": "createDB.groups",
+    "pk": 1,
+    "fields": {
+        "people_num": 4,
+        "tour_type": "액티비티형 옥수수",
+        "group_name": "group1"
+    }
+},
+{
+    "model": "createDB.groups",
+    "pk": 2,
+    "fields": {
+        "people_num": 4,
+        "tour_type": "사람좋아 쌀알",
+        "group_name": "group2"
+    }
+},
+{
+    "model": "createDB.groups",
+    "pk": 3,
+    "fields": {
+        "people_num": 4,
+        "tour_type": "힐링형 감자",
+        "group_name": "group3"
+    }
+},
+{
+    "model": "createDB.groups",
+    "pk": 4,
+    "fields": {
+        "people_num": 4,
+        "tour_type": "관람형 배추",
+        "group_name": "group4"
+    }
+},
+{
+    "model": "createDB.groups",
+    "pk": 5,
+    "fields": {
+        "people_num": 4,
+        "tour_type": "도전형 인삼",
+        "group_name": "group5"
+    }
+},
+{
+    "model": "createDB.groups",
+    "pk": 6,
+    "fields": {
+        "people_num": 4,
+        "tour_type": "미식형 황태",
+        "group_name": "group6"
+    }
+},
+{
+    "model": "createDB.groups",
+    "pk": 7,
+    "fields": {
+        "people_num": 4,
+        "tour_type": "인플루언서형 복숭아",
+        "group_name": "group7"
+    }
+},
+{
+    "model": "createDB.groups",
+    "pk": 8,
+    "fields": {
+        "people_num": 4,
+        "tour_type": "나무늘보형 순두부",
+        "group_name": "group8"
+    }
+}
+]
