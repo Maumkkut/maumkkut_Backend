@@ -8,5 +8,10 @@ urlpatterns = [
     # google login endpoint
     path('google/login/', views.google_login, name="google_login"),
     path('google/callback/', views.google_callback, name="google_callback"),
-    path('test/', views.test),
+    # kakao login endpoint
+    path('kakao/login/', views.kakao_login, name="kakao_login"),
+    path('kakao/callback/', views.kakao_callback, name="kakao_callback"),
+    # profile endpoint
+    # path('check/', views.check_user_info, name='check_user_info'),
+    path('test/', views.test, name="test")
 ]
