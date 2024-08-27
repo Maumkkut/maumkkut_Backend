@@ -22,7 +22,7 @@ SECRET_KEY = os.getenv('SECRET_KEY')
 DEBUG = 'False'
 
 # 배포서버
-allowed_hosts = os.getenv('ALLOWED_HOSTS', 'localhost')  # 기본값은 문자열로 설정
+allowed_hosts = os.getenv('ALLOWED_HOSTS', 'localhost')  #기본값은 문자열로 설정
 ALLOWED_HOSTS = [host.strip() for host in allowed_hosts.split(',')]
 
 # 로컬서버
