@@ -21,13 +21,12 @@ load_dotenv()
 SECRET_KEY = os.getenv('SECRET_KEY')
 DEBUG = 'False'
 
-allowed_hosts = os.getenv('ALLOWED_HOSTS', 'localhost')  # 기본값은 문자열로 설정
-local_hosts = os.getenv('LOCAL')
-
 # 배포서버
+allowed_hosts = os.getenv('ALLOWED_HOSTS', 'localhost')  # 기본값은 문자열로 설정
 ALLOWED_HOSTS = [host.strip() for host in allowed_hosts.split(',')]
 
 # 로컬서버
+# local_hosts = os.getenv('LOCAL')
 # ALLOWED_HOSTS = [host.strip() for host in local_hosts.split(',')]
 
 # Application definition
