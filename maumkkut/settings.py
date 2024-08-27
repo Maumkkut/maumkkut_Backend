@@ -21,9 +21,6 @@ load_dotenv()
 SECRET_KEY = os.getenv('SECRET_KEY')
 DEBUG = 'False'
 
-allowed_hosts = os.getenv('ALLOWED_HOSTS', 'localhost')  # 기본값은 문자열로 설정
-local_hosts = os.getenv('LOCAL')
-
 # 배포서버
 ALLOWED_HOSTS = [host.strip() for host in allowed_hosts.split(',')]
 
@@ -32,6 +29,7 @@ ALLOWED_HOSTS = [host.strip() for host in allowed_hosts.split(',')]
 # print('test', ALLOWED_HOSTS)
 # Application definition
 
+# Application definition
 INSTALLED_APPS = [
     'board',
     'corsheaders',
