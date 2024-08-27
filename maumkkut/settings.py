@@ -28,9 +28,8 @@ local_hosts = os.getenv('LOCAL')
 # ALLOWED_HOSTS = [host.strip() for host in allowed_hosts.split(',')]
 
 # 로컬서버
+local_hosts = os.getenv('LOCAL')
 ALLOWED_HOSTS = [host.strip() for host in local_hosts.split(',')]
-print('test', ALLOWED_HOSTS)
-# Application definition
 
 INSTALLED_APPS = [
     'board',
