@@ -25,11 +25,12 @@ allowed_hosts = os.getenv('ALLOWED_HOSTS', 'localhost')  # 기본값은 문자�
 local_hosts = os.getenv('LOCAL')
 
 # 배포서버
-# ALLOWED_HOSTS = [host.strip() for host in allowed_hosts.split(',')]
+ALLOWED_HOSTS = [host.strip() for host in allowed_hosts.split(',')]
 
 # 로컬서버
-local_hosts = os.getenv('LOCAL')
-ALLOWED_HOSTS = [host.strip() for host in local_hosts.split(',')]
+# ALLOWED_HOSTS = [host.strip() for host in local_hosts.split(',')]
+# print('test', ALLOWED_HOSTS)
+# Application definition
 
 INSTALLED_APPS = [
     'board',
