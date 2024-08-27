@@ -13,20 +13,16 @@ https://docs.djangoproject.com/en/5.0/ref/settings/
 from pathlib import Path
 import os
 from dotenv import load_dotenv
-# Build paths inside the project like this: BASE_DIR / 'subdir'.
+
 BASE_DIR = Path(__file__).resolve().parent.parent
 load_dotenv()
 
-# Quick-start development settings - unsuitable for production
-# See https://docs.djangoproject.com/en/5.0/howto/deployment/checklist/
-
-# SECURITY WARNING: keep the secret key used in production secret!
 
 SECRET_KEY = os.getenv('SECRET_KEY')
-# SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = 'False'
 
-ALLOWED_HOSTS = ['maumkkut.site', 'www.maumkkut.site']
+allowed_hosts = os.getenv('ALLOWED_HOSTS', 'localhost')  # 기본값은 문자열로 설정
+ALLOWED_HOSTS = [host.strip() for host in allowed_hosts.split(',')]
 
 # Application definition
 
@@ -163,33 +159,6 @@ REST_FRAMEWORK = {
 }
 
 REST_USE_JWT = True
-
-# SOCIALACCOUNT_PROVIDERS = {
-#     'google': {
-#         'SCOPE': [
-#             'profile',
-#             'email',
-#         ],
-#         'AUTH_PARAMS': {
-#             'access_type': 'online',
-#         },
-#         'OAUTH_CLIENT_ID': config('GOOGLE_OAUTH_CLIENT_ID'),
-#         'OAUTH_CLIENT_SECRET': config('GOOGLE_OAUTH_CLIENT_SECRET'),
-#     }
-# }
-
-# SOCIALACCOUNT_PROVIDERS = {
-#     'google': {
-#         'SCOPE': [
-#             'profile',
-#             'email',
-#         ],
-#         'AUTH_PARAMS': {
-#             'access_type': 'online',
-#         },
-#         'OAUTH_PKCE_ENABLED': True,
-#     }
-# }
 
 SWAGGER_SETTINGS = {
     'SECURITY_DEFINITIONS': {

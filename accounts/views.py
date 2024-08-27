@@ -70,6 +70,8 @@ def google_callback(request):
         # 사용자를 Django 세션에 로그인
         login(request, user, backend='django.contrib.auth.backends.ModelBackend')
         
+        # 사용자 추가 정보 받기
+        
         # 성공적으로 로그인 했음을 클라이언트에게 알림
         return JsonResponse(
             {
