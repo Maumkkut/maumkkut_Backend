@@ -13,6 +13,7 @@ https://docs.djangoproject.com/en/5.0/ref/settings/
 from pathlib import Path
 import os
 from dotenv import load_dotenv
+from datetime import timedelta
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 load_dotenv()
@@ -20,6 +21,10 @@ load_dotenv()
 
 SECRET_KEY = os.getenv('SECRET_KEY')
 DEBUG = 'False'
+
+# CORS 관련
+CORS_ALLOW_ALL_ORIGINS = True
+CORS_ALLOW_HEADERS = ['*']
 
 # 배포서버
 allowed_hosts = os.getenv('ALLOWED_HOSTS', 'localhost')  #기본값은 문자열로 설정
@@ -40,7 +45,7 @@ INSTALLED_APPS = [
     'rest_framework',
     'rest_framework.authtoken',
     'django_filters',
-    # 'rest_framework.simplejwt',
+    'rest_framework_simplejwt',
     'dj_rest_auth',
     'dj_rest_auth.registration',
     "allauth.socialaccount",
@@ -156,13 +161,19 @@ ACCOUNT_AUTHENTICATION_METHOD = 'username'  # 사용자명으로 인증
 
 # REST Framework 설정
 REST_FRAMEWORK = {
+    # csrf token 제외 -> 임시
+    # 'DEFAULT_RENDERER_CLASSES': [
+    #     'rest_framework.renderers.JSONRenderer',
+    # ],
+    # 'DEFAULT_PERMISSION_CLASSES' : (
+        # header에 access token 포함
+        # 'rest_framework.permissions.IsAuthenticated',
+    # ),
     'DEFAULT_AUTHENTICATION_CLASSES': (
-        'rest_framework.authentication.TokenAuthentication',
-        # 'rest_framework_simplejwt.authentication.JWTAuthentication',
+        'rest_framework.authentication.SessionAuthentication',
+        # 'dj_rest_auth.jwt_auth.JWTCookieAuthentication',
     ),
 }
-
-REST_USE_JWT = True
 
 SWAGGER_SETTINGS = {
     'SECURITY_DEFINITIONS': {
@@ -176,3 +187,9 @@ SWAGGER_SETTINGS = {
 }
 
 AUTH_USER_MODEL = 'accounts.User'
+
+# user model 변경에 따른 register_serializer, adapters 등록
+REST_AUTH = {
+    'REGISTER_SERIALIZER': 'accounts.serializers.CustomRegisterSerializer',
+}
+ACCOUNT_ADAPTER = 'accounts.adapters.CustomUserAccountAdapter'

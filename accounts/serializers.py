@@ -1,5 +1,7 @@
 from dj_rest_auth.registration.serializers import RegisterSerializer
+from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
 from rest_framework import serializers
+from rest_framework_simplejwt.tokens import RefreshToken
 from django.core.validators import RegexValidator
 from django.contrib.auth import get_user_model
 
@@ -31,7 +33,9 @@ class CustomRegisterSerializer(RegisterSerializer):
         data['address'] = self.validated_data.get('address', '')
         data['nickname'] = self.validated_data.get('nickname', '')
         data['date_of_birth'] = self.validated_data.get('date_of_birth', '')
+
         return data
+
     
     def save(self, request):
         user = super().save(request)
@@ -51,4 +55,9 @@ class CustomRegisterSerializer(RegisterSerializer):
         user.address = address
         user.date_of_birth = date_of_birth
         user.save()
+
+        # 응답 데이터로 토큰 포함
         return user
+    
+    
+    

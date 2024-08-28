@@ -4,14 +4,38 @@ from django.contrib.auth import login, get_user_model
 import requests
 from rest_framework import status
 import os
+from dj_rest_auth.registration.views import RegisterView
+from .serializers import CustomRegisterSerializer
+from rest_framework.response import Response
+from rest_framework_simplejwt.tokens import RefreshToken
+from django.views import View
 
-# CLIENT_ID = os.environ.get('GOOGLE_CLIENT_ID')
-# CLIENT_SECRET = os.environ.get('GOOGLE_CLIENT_SECRET')
-# REDIRECT_URI = os.environ.get('GOOGLE_REDIRECT')
-# TOKEN_URI = os.environ.get('GOOGLE_TOKEN_URI')
+class TestView(View):
+    def get(self, request):
+        return JsonResponse({'status': 'Test view working!'}, status=status.HTTP_200_OK)
+    
+# class CustomRegisterView(RegisterView):
+#     serializer_class = CustomRegisterSerializer
+#     def get_response(self):
+#         user = self.user
+#         print(user)
+#         # 커스텀 토큰 생성
+#         tokens = self.get_tokens_for_user(user)
+#         print(tokens)
+#         return Response({
+#             'refresh': tokens['refresh'],
+#             'access': tokens['access'],
+#         }, status=status.HTTP_201_CREATED)
 
-def test(request):
-    return JsonResponse({"status": 200, "message": "배포 테스트 성공"}, status=status.HTTP_200_OK)
+#     def get_tokens_for_user(self, user):
+#         refresh = RefreshToken.for_user(user)
+#         return {
+#             'refresh': str(refresh),
+#             'access': str(refresh.access_token),
+#         }
+
+
+    
 def google_login(request):
     CLIENT_ID = os.environ.get('GOOGLE_CLIENT_ID')
     REDIRECT_URI = os.environ.get('GOOGLE_REDIRECT')
