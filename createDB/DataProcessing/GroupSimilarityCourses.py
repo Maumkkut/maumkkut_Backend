@@ -1,5 +1,5 @@
 from datetime import datetime
-from .models import Groups, Group_Members, Routes_plan, User_info
+from ..models import Groups, Group_Members, Routes_plan, User_info
 from sklearn.metrics.pairwise import cosine_similarity
 from sklearn.feature_extraction.text import CountVectorizer
 
