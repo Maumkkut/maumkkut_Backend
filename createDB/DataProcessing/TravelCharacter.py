@@ -1,4 +1,4 @@
-from CharacterRecommendations import characters
+from .CharacterRecommendations import characters
 # input -> importance_list > [4,2,1,4,5,6,7,8,2,0]
 def recommend_character(importance_list):
     # 캐릭터 목록을 정의 (각 캐릭터의 이름, 키워드 중요도, 설명)

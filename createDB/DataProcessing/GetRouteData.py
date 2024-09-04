@@ -39,6 +39,7 @@ def route_data_by_area(areacode):
     filtered_routes = Routes_plan.objects.filter(route_area=areacode)
     tour_plan_data = Tour_plan_data.objects.filter(route__in=filtered_routes).select_related('tour').prefetch_related('route')
     results = []
+
     
     for data in tour_plan_data:
         route = data.route
