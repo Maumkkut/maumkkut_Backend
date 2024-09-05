@@ -37,6 +37,7 @@ ALLOWED_HOSTS = [host.strip() for host in allowed_hosts.split(',')]
 # Application definition
 INSTALLED_APPS = [
     'board',
+    'createDB',
     'corsheaders',
     'accounts',
     'django.contrib.sites',

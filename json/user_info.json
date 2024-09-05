@@ -1,0 +1,434 @@
+[
+  {
+      "model": "createDB.user_info",
+      "pk": 1,
+      "fields": {
+          "user": 1,
+          "user_age": 20,
+          "user_type": "힐링형 감자",
+          "user_healing": 5,
+          "user_relax": 5,
+          "user_nature": 5,
+          "user_exhibit": 2,
+          "user_food": 1,
+          "user_adventure": 1,
+          "user_people": 1,
+          "user_shopping": 1,
+          "user_photo": 2
+      }
+  },
+  {
+      "model": "createDB.user_info",
+      "pk": 2,
+      "fields": {
+          "user": 2,
+          "user_age": 20,
+          "user_type": "힐링형 감자",
+          "user_healing": 5,
+          "user_relax": 5,
+          "user_nature": 5,
+          "user_exhibit": 2,
+          "user_food": 1,
+          "user_adventure": 1,
+          "user_people": 1,
+          "user_shopping": 1,
+          "user_photo": 2
+      }
+  },
+  {
+      "model": "createDB.user_info",
+      "pk": 3,
+      "fields": {
+          "user": 3,
+          "user_age": 20,
+          "user_type": "힐링형 감자",
+          "user_healing": 5,
+          "user_relax": 5,
+          "user_nature": 5,
+          "user_exhibit": 2,
+          "user_food": 1,
+          "user_adventure": 1,
+          "user_people": 1,
+          "user_shopping": 1,
+          "user_photo": 2
+      }
+  },
+  {
+      "model": "createDB.user_info",
+      "pk": 4,
+      "fields": {
+          "user": 4,
+          "user_age": 21,
+          "user_type": "액티비티형 옥수수",
+          "user_healing": 1,
+          "user_relax": 2,
+          "user_nature": 4,
+          "user_exhibit": 2,
+          "user_food": 3,
+          "user_adventure": 5,
+          "user_people": 5,
+          "user_shopping": 2,
+          "user_photo": 4
+      }
+  },
+  {
+      "model": "createDB.user_info",
+      "pk": 5,
+      "fields": {
+          "user": 5,
+          "user_age": 25,
+          "user_type": "액티비티형 옥수수",
+          "user_healing": 1,
+          "user_relax": 2,
+          "user_nature": 4,
+          "user_exhibit": 2,
+          "user_food": 3,
+          "user_adventure": 5,
+          "user_people": 5,
+          "user_shopping": 2,
+          "user_photo": 4
+      }
+  },
+  {
+      "model": "createDB.user_info",
+      "pk": 6,
+      "fields": {
+          "user": 6,
+          "user_age": 20,
+          "user_type": "액티비티형 옥수수",
+          "user_healing": 1,
+          "user_relax": 2,
+          "user_nature": 4,
+          "user_exhibit": 2,
+          "user_food": 3,
+          "user_adventure": 5,
+          "user_people": 5,
+          "user_shopping": 2,
+          "user_photo": 4
+      }
+  },
+  {
+      "model": "createDB.user_info",
+      "pk": 7,
+      "fields": {
+          "user": 7,
+          "user_age": 23,
+          "user_type": "관람형 배추",
+          "user_healing": 2,
+          "user_relax": 3,
+          "user_nature": 3,
+          "user_exhibit": 5,
+          "user_food": 3,
+          "user_adventure": 2,
+          "user_people": 2,
+          "user_shopping": 3,
+          "user_photo": 4
+      }
+  },
+  {
+      "model": "createDB.user_info",
+      "pk": 8,
+      "fields": {
+          "user": 8,
+          "user_age": 27,
+          "user_type": "관람형 배추",
+          "user_healing": 2,
+          "user_relax": 3,
+          "user_nature": 3,
+          "user_exhibit": 5,
+          "user_food": 3,
+          "user_adventure": 2,
+          "user_people": 2,
+          "user_shopping": 3,
+          "user_photo": 4
+      }
+  },
+  {
+      "model": "createDB.user_info",
+      "pk": 9,
+      "fields": {
+          "user": 9,
+          "user_age": 24,
+          "user_type": "관람형 배추",
+          "user_healing": 2,
+          "user_relax": 3,
+          "user_nature": 3,
+          "user_exhibit": 5,
+          "user_food": 3,
+          "user_adventure": 2,
+          "user_people": 2,
+          "user_shopping": 3,
+          "user_photo": 4
+      }
+  },
+  {
+      "model": "createDB.user_info",
+      "pk": 10,
+      "fields": {
+          "user": 10,
+          "user_age": 30,
+          "user_type": "미식형 황태",
+          "user_healing": 2,
+          "user_relax": 4,
+          "user_nature": 2,
+          "user_exhibit": 3,
+          "user_food": 5,
+          "user_adventure": 2,
+          "user_people": 4,
+          "user_shopping": 4,
+          "user_photo": 3
+      }
+  },
+  {
+      "model": "createDB.user_info",
+      "pk": 11,
+      "fields": {
+          "user": 11,
+          "user_age": 25,
+          "user_type": "미식형 황태",
+          "user_healing": 2,
+          "user_relax": 4,
+          "user_nature": 2,
+          "user_exhibit": 3,
+          "user_food": 5,
+          "user_adventure": 2,
+          "user_people": 4,
+          "user_shopping": 4,
+          "user_photo": 3
+      }
+  },
+  {
+      "model": "createDB.user_info",
+      "pk": 12,
+      "fields": {
+          "user": 12,
+          "user_age": 31,
+          "user_type": "미식형 황태",
+          "user_healing": 2,
+          "user_relax": 4,
+          "user_nature": 2,
+          "user_exhibit": 3,
+          "user_food": 5,
+          "user_adventure": 2,
+          "user_people": 4,
+          "user_shopping": 4,
+          "user_photo": 3
+      }
+  },
+  {
+      "model": "createDB.user_info",
+      "pk": 13,
+      "fields": {
+          "user": 13,
+          "user_age": 20,
+          "user_type": "사람좋아 쌀알",
+          "user_healing": 1,
+          "user_relax": 2,
+          "user_nature": 4,
+          "user_exhibit": 2,
+          "user_food": 3,
+          "user_adventure": 3,
+          "user_people": 5,
+          "user_shopping": 4,
+          "user_photo": 4
+      }
+  },
+  {
+      "model": "createDB.user_info",
+      "pk": 14,
+      "fields": {
+          "user": 14,
+          "user_age": 21,
+          "user_type": "사람좋아 쌀알",
+          "user_healing": 1,
+          "user_relax": 2,
+          "user_nature": 4,
+          "user_exhibit": 2,
+          "user_food": 3,
+          "user_adventure": 3,
+          "user_people": 5,
+          "user_shopping": 4,
+          "user_photo": 4
+      }
+  },
+  {
+      "model": "createDB.user_info",
+      "pk": 15,
+      "fields": {
+          "user": 15,
+          "user_age": 21,
+          "user_type": "사람좋아 쌀알",
+          "user_healing": 1,
+          "user_relax": 2,
+          "user_nature": 4,
+          "user_exhibit": 2,
+          "user_food": 3,
+          "user_adventure": 3,
+          "user_people": 5,
+          "user_shopping": 4,
+          "user_photo": 4
+      }
+  },
+  {
+      "model": "createDB.user_info",
+      "pk": 16,
+      "fields": {
+          "user": 16,
+          "user_age": 23,
+          "user_type": "도전형 인삼",
+          "user_healing": 2,
+          "user_relax": 3,
+          "user_nature": 5,
+          "user_exhibit": 3,
+          "user_food": 3,
+          "user_adventure": 5,
+          "user_people": 2,
+          "user_shopping": 2,
+          "user_photo": 4
+      }
+  },
+  {
+      "model": "createDB.user_info",
+      "pk": 17,
+      "fields": {
+          "user": 17,
+          "user_age": 24,
+          "user_type": "도전형 인삼",
+          "user_healing": 2,
+          "user_relax": 3,
+          "user_nature": 5,
+          "user_exhibit": 3,
+          "user_food": 3,
+          "user_adventure": 5,
+          "user_people": 2,
+          "user_shopping": 2,
+          "user_photo": 4
+      }
+  },
+  {
+      "model": "createDB.user_info",
+      "pk": 18,
+      "fields": {
+          "user": 18,
+          "user_age": 20,
+          "user_type": "도전형 인삼",
+          "user_healing": 2,
+          "user_relax": 3,
+          "user_nature": 5,
+          "user_exhibit": 3,
+          "user_food": 3,
+          "user_adventure": 5,
+          "user_people": 2,
+          "user_shopping": 2,
+          "user_photo": 4
+      }
+  },
+  {
+      "model": "createDB.user_info",
+      "pk": 19,
+      "fields": {
+          "user": 19,
+          "user_age": 22,
+          "user_type": "인플루언서형 복숭아",
+          "user_healing": 1,
+          "user_relax": 2,
+          "user_nature": 3,
+          "user_exhibit": 3,
+          "user_food": 4,
+          "user_adventure": 3,
+          "user_people": 5,
+          "user_shopping": 5,
+          "user_photo": 4
+      }
+  },
+  {
+      "model": "createDB.user_info",
+      "pk": 20,
+      "fields": {
+          "user": 20,
+          "user_age": 21,
+          "user_type": "인플루언서형 복숭아",
+          "user_healing": 1,
+          "user_relax": 2,
+          "user_nature": 3,
+          "user_exhibit": 3,
+          "user_food": 4,
+          "user_adventure": 3,
+          "user_people": 5,
+          "user_shopping": 5,
+          "user_photo": 4
+      }
+  },
+  {
+      "model": "createDB.user_info",
+      "pk": 21,
+      "fields": {
+          "user": 21,
+          "user_age": 26,
+          "user_type": "인플루언서형 복숭아",
+          "user_healing": 1,
+          "user_relax": 2,
+          "user_nature": 3,
+          "user_exhibit": 3,
+          "user_food": 4,
+          "user_adventure": 3,
+          "user_people": 5,
+          "user_shopping": 5,
+          "user_photo": 4
+      }
+  },
+  {
+      "model": "createDB.user_info",
+      "pk": 22,
+      "fields": {
+          "user": 22,
+          "user_age": 28,
+          "user_type": "나무늘보형 순두부",
+          "user_healing": 4,
+          "user_relax": 5,
+          "user_nature": 3,
+          "user_exhibit": 2,
+          "user_food": 3,
+          "user_adventure": 1,
+          "user_people": 1,
+          "user_shopping": 1,
+          "user_photo": 2
+      }
+  },
+  {
+      "model": "createDB.user_info",
+      "pk": 23,
+      "fields": {
+          "user": 23,
+          "user_age": 24,
+          "user_type": "나무늘보형 순두부",
+          "user_healing": 4,
+          "user_relax": 5,
+          "user_nature": 3,
+          "user_exhibit": 2,
+          "user_food": 3,
+          "user_adventure": 1,
+          "user_people": 1,
+          "user_shopping": 1,
+          "user_photo": 2
+      }
+  },
+  {
+      "model": "createDB.user_info",
+      "pk": 24,
+      "fields": {
+          "user": 24,
+          "user_age": 30,
+          "user_type": "나무늘보형 순두부",
+          "user_healing": 4,
+          "user_relax": 5,
+          "user_nature": 3,
+          "user_exhibit": 2,
+          "user_food": 3,
+          "user_adventure": 1,
+          "user_people": 1,
+          "user_shopping": 1,
+          "user_photo": 2
+      }
+  }
+  ]

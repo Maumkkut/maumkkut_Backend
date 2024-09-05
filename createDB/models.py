@@ -21,6 +21,31 @@ class Tours(models.Model):
   eventstartdate = models.DateTimeField(null=True)
   eventenddate = models.DateTimeField(null=True)
   
+class User_info(models.Model):
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
+    user_age = models.IntegerField(null=True)
+    user_type = models.TextField(null=True)
+    user_healing = models.IntegerField(null=True)
+    user_relax = models.IntegerField(null=True)
+    user_nature = models.IntegerField(null=True)
+    user_exhibit = models.IntegerField(null=True)
+    user_food = models.IntegerField(null=True)
+    user_adventure = models.IntegerField(null=True)
+    user_people = models.IntegerField(null=True)
+    user_shopping = models.IntegerField(null=True)
+    user_photo = models.IntegerField(null=True)
+    
+    # ManyToMany 관계 설정
+    tour_like = models.ManyToManyField('Tours', through='User_info_tour_like', related_name='liked_users')
+    tour_dislike = models.ManyToManyField('Tours', through='User_info_tour_dislike', related_name='disliked_users')
+  
+class User_info_tour_like(models.Model):
+    user_info = models.ForeignKey(User_info, on_delete=models.CASCADE)
+    tour = models.ForeignKey('Tours', on_delete=models.CASCADE)
+
+class User_info_tour_dislike(models.Model):
+    user_info = models.ForeignKey(User_info, on_delete=models.CASCADE)
+    tour = models.ForeignKey('Tours', on_delete=models.CASCADE)
 
 class Groups(models.Model):
   users = models.ManyToManyField(
@@ -49,3 +74,4 @@ class Tour_plan_data(models.Model):
 class Group_Members(models.Model):
   users = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
   group = models.ForeignKey(Groups, on_delete=models.CASCADE)
+
