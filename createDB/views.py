@@ -136,6 +136,30 @@ def get_random_tours_by_tour_type(request, areacode, tour_type):
             examples={
                 "application/json": {
                     "result": [
+                        {
+                            "tour_plan_data": {
+                                "pk": 651,
+                                "tour_seq": 1
+                            },
+                            "tour": {
+                                "pk": 1644,
+                                "sigungucode": 1,
+                                "addr1": "강원특별자치도 강릉시 연곡면 부연동길 840",
+                                "addr2": "",
+                                "image": "http://tong.visitkorea.or.kr/cms/resource/55/2797055_image2_1.jpg",
+                                "cat1": "A03",
+                                "cat2": "A0302",
+                                "cat3": "A03021700",
+                                "type_id": 28,
+                                "mapx": 128.6345839058,
+                                "mapy": 37.8714719452,
+                                "title": "부연동 스카이케빈",
+                                "zipcode": "25400",
+                                "tel": "",
+                                "eventstartdate": None,
+                                "eventenddate": None
+                            }
+                        },
                         # 추가적인 관광지 데이터
                     ]
                 }
@@ -167,6 +191,30 @@ def get_route_data_by_route(request, route_pk):
             examples={
                 "application/json": {
                     "result": [
+                        {
+                            "tour_plan_data": {
+                                "pk": 651,
+                                "tour_seq": 1
+                            },
+                            "tour": {
+                                "pk": 1644,
+                                "sigungucode": 1,
+                                "addr1": "강원특별자치도 강릉시 연곡면 부연동길 840",
+                                "addr2": "",
+                                "image": "http://tong.visitkorea.or.kr/cms/resource/55/2797055_image2_1.jpg",
+                                "cat1": "A03",
+                                "cat2": "A0302",
+                                "cat3": "A03021700",
+                                "type_id": 28,
+                                "mapx": 128.6345839058,
+                                "mapy": 37.8714719452,
+                                "title": "부연동 스카이케빈",
+                                "zipcode": "25400",
+                                "tel": "",
+                                "eventstartdate": None,
+                                "eventenddate": None
+                            }
+                        },
                         # 추가적인 관광지 데이터
                     ]
                 }
@@ -178,7 +226,6 @@ def get_route_data_by_route(request, route_pk):
 @api_view(['GET'])
 @permission_classes([IsAuthenticatedOrReadOnly])
 def get_routes_by_route_area(request, areacode):
-    print(areacode)
     try:
         route_data = route_data_by_area(areacode)
         return Response({'result': route_data}, status=status.HTTP_200_OK)
@@ -199,6 +246,30 @@ def get_routes_by_route_area(request, areacode):
             examples={
                 "application/json": {
                     "result": [
+                        {
+                            "tour_plan_data": {
+                                "pk": 651,
+                                "tour_seq": 1
+                            },
+                            "tour": {
+                                "pk": 1644,
+                                "sigungucode": 1,
+                                "addr1": "강원특별자치도 강릉시 연곡면 부연동길 840",
+                                "addr2": "",
+                                "image": "http://tong.visitkorea.or.kr/cms/resource/55/2797055_image2_1.jpg",
+                                "cat1": "A03",
+                                "cat2": "A0302",
+                                "cat3": "A03021700",
+                                "type_id": 28,
+                                "mapx": 128.6345839058,
+                                "mapy": 37.8714719452,
+                                "title": "부연동 스카이케빈",
+                                "zipcode": "25400",
+                                "tel": "",
+                                "eventstartdate": None,
+                                "eventenddate": None
+                            }
+                        },
                         # 추가적인 관광지 데이터
                     ]
                 }
@@ -231,6 +302,30 @@ def get_routes_by_tour_type(request, tour_type):
             examples={
                 "application/json": {
                     "result": [
+                        {
+                            "tour_plan_data": {
+                                "pk": 651,
+                                "tour_seq": 1
+                            },
+                            "tour": {
+                                "pk": 1644,
+                                "sigungucode": 1,
+                                "addr1": "강원특별자치도 강릉시 연곡면 부연동길 840",
+                                "addr2": "",
+                                "image": "http://tong.visitkorea.or.kr/cms/resource/55/2797055_image2_1.jpg",
+                                "cat1": "A03",
+                                "cat2": "A0302",
+                                "cat3": "A03021700",
+                                "type_id": 28,
+                                "mapx": 128.6345839058,
+                                "mapy": 37.8714719452,
+                                "title": "부연동 스카이케빈",
+                                "zipcode": "25400",
+                                "tel": "",
+                                "eventstartdate": None,
+                                "eventenddate": None
+                            }
+                        },
                         # 추가적인 관광지 데이터
                     ]
                 }
@@ -342,7 +437,7 @@ def get_routes_by_tour_type_area(request, areacode, tour_type):
     }
 )
 @api_view(['POST'])
-@permission_classes([IsAuthenticatedOrReadOnly])
+# @permission_classes([IsAuthenticatedOrReadOnly])
 def recommend_character_view(request):
     try:
         importance_list = request.data.get('importance_list')
@@ -392,7 +487,7 @@ def recommend_character_view(request):
     }
 )
 @api_view(['POST'])
-@permission_classes([IsAuthenticatedOrReadOnly])
+# @permission_classes([IsAuthenticatedOrReadOnly])
 def recommend_course_view(request):
     try:
         importance_list = request.data.get('importance_list')
