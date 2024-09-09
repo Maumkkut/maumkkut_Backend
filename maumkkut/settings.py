@@ -27,12 +27,12 @@ CORS_ALLOW_ALL_ORIGINS = True
 CORS_ALLOW_HEADERS = ['*']
 
 # 배포서버
-allowed_hosts = os.getenv('ALLOWED_HOSTS', 'localhost')  #기본값은 문자열로 설정
-ALLOWED_HOSTS = [host.strip() for host in allowed_hosts.split(',')]
+# allowed_hosts = os.getenv('ALLOWED_HOSTS', 'localhost')  #기본값은 문자열로 설정
+# ALLOWED_HOSTS = [host.strip() for host in allowed_hosts.split(',')]
 
 # 로컬서버
-# local_hosts = os.getenv('LOCAL')
-# ALLOWED_HOSTS = [host.strip() for host in local_hosts.split(',')]
+local_hosts = os.getenv('LOCAL')
+ALLOWED_HOSTS = [host.strip() for host in local_hosts.split(',')]
 
 # Application definition
 INSTALLED_APPS = [

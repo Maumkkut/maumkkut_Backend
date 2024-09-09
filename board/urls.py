@@ -20,7 +20,4 @@ urlpatterns = [
     path('reported/posts/<int:post_id>/', views.reported_post_detail, name='reported-post-detail'),
     path('reported/comments/', views.reported_comments_list, name='reported-comments-list'),
     path('reported/comments/<int:comment_id>/', views.reported_comment_detail, name='reported-comment-detail'),
-
-    # 공통 조회 기능 URL 패턴
-    path('posts/search/', views.search_posts, name='search_posts'),
 ]
