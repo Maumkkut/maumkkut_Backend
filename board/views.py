@@ -140,10 +140,41 @@ def get_recent_posts(request, days):
     serializer = PostListSerializer(result_page, many=True)
     return paginator.get_paginated_response(serializer.data)
 
+def filter_posts(request, board_type):
+    queryset = Post.objects.filter(board_type=board_type)
+
+    # 기간(days) 필터링
+    days = request.GET.get('days')
+    if days:
+        try:
+            days = int(days)
+            date_from = timezone.now() - timedelta(days=days)
+            queryset = queryset.filter(created_at__gte=date_from)
+        except ValueError:
+            pass
+
+    # 검색(search_type) 필터링
+    search_type = request.GET.get('search_type')
+    content = request.GET.get('content')
+    if search_type and content:
+        if search_type == 'title':
+            queryset = queryset.filter(title__icontains=content)
+        elif search_type == 'content':
+            queryset = queryset.filter(content__icontains=content)
+        elif search_type == 'author':
+            queryset = queryset.filter(author__username__icontains=content)
+
+    return queryset.order_by('-created_at')
+
 @swagger_auto_schema(
     method='get',
-    operation_summary="게시판 게시글 목록 조회",
-    operation_description="게시판의 게시글 목록을 가져옵니다",
+    operation_summary="게시판 게시글 목록 조회 및 검색",
+    operation_description="게시판의 게시글 목록을 가져옵니다. 'days', 'search_type', 'content' 파라미터로 검색이 가능합니다.",
+    manual_parameters=[
+        openapi.Parameter('days', openapi.IN_QUERY, description="조회할 기간 (일 단위)", type=openapi.TYPE_INTEGER),
+        openapi.Parameter('search_type', openapi.IN_QUERY, description="검색 유형 (title, content, author)", type=openapi.TYPE_STRING),
+        openapi.Parameter('content', openapi.IN_QUERY, description="검색 내용", type=openapi.TYPE_STRING),
+    ],
     responses={200: openapi.Response('성공', PostListSerializer(many=True), examples={"application/json": [post_response_example]})}
 )
 @swagger_auto_schema(
@@ -166,7 +197,15 @@ def get_recent_posts(request, days):
 @permission_classes([IsAuthenticatedOrReadOnly])
 def post_list(request, board_type):
     if request.method == 'GET':
-        return get_board_posts(request, board_type)
+        # 필터링된 게시글 가져오기
+        posts = filter_posts(request, board_type)
+
+        # 페이지네이션 처리
+        paginator = TenResultsSetPagination()
+        result_page = paginator.paginate_queryset(posts, request)
+        serializer = PostListSerializer(result_page, many=True)
+        return paginator.get_paginated_response(serializer.data)
+
     elif request.method == 'POST':
         # 관리자가 아니면 게시글 작성 불가
         if board_type == 'notice' and not request.user.is_admin():
@@ -466,77 +505,6 @@ def reported_comment_detail(request, comment_id):
         return Response({"message": "댓글이 성공적으로 삭제되었습니다."}, status=status.HTTP_204_NO_CONTENT)
 from rest_framework.exceptions import ValidationError
 
-class PostFilter(django_filters.FilterSet):
-    days = django_filters.NumberFilter(method='filter_by_days')
-    board_type = django_filters.CharFilter(field_name='board_type')
-    search_type = django_filters.CharFilter(method='filter_by_search_type')
-
-    class Meta:
-        model = Post
-        fields = ['days', 'board_type', 'search_type']
-
-    def __init__(self, *args, **kwargs):
-        self.request = kwargs.pop('request', None)
-        super().__init__(*args, **kwargs)
-
-    def filter_by_days(self, queryset, name, value):
-        if value == 1000:
-            return queryset
-        date_from = timezone.now() - timedelta(days=int(value))
-        return queryset.filter(created_at__gte=date_from)
-
-    def filter_by_search_type(self, queryset, name, value):
-        if self.request is None:
-            return queryset  # self.request가 None일 경우 기본 queryset 반환
-        content = self.request.GET.get('content')
-        if not content:
-            return queryset
-        if value == 'title':
-            return queryset.filter(title__icontains=content)
-        elif value == 'content':
-            return queryset.filter(content__icontains=content)
-        elif value == 'author':
-            return queryset.filter(author__username__icontains=content)
-        return queryset
-
-@swagger_auto_schema(
-    method='get',
-    operation_summary="최근 게시글 조회 및 검색",
-    operation_description="최근 일정 기간 동안 작성된 게시글을 검색합니다. 'days', 'board_type', 'search_type', 'content' 파라미터를 사용하여 검색할 기간, 게시판 타입, 검색 유형(title, content, author) 및 검색 내용을 지정할 수 있습니다.",
-    manual_parameters=[
-        openapi.Parameter('days', openapi.IN_QUERY, description="조회할 기간 (일 단위)", type=openapi.TYPE_INTEGER),
-        openapi.Parameter('board_type', openapi.IN_QUERY, description="게시판 타입", type=openapi.TYPE_STRING),
-        openapi.Parameter('search_type', openapi.IN_QUERY, description="검색 유형 (title, content, author)", type=openapi.TYPE_STRING),
-        openapi.Parameter('content', openapi.IN_QUERY, description="검색 내용", type=openapi.TYPE_STRING),
-    ],
-    responses={
-        200: openapi.Response(
-            description="성공적으로 조회된 게시물 목록입니다.",
-            schema=PostListSerializer(many=True)
-        ),
-        400: "잘못된 요청입니다."
-    }
-)
-@api_view(['GET'])
-@permission_classes([IsAuthenticatedOrReadOnly])
-def search_posts(request):
-    # PostFilter를 사용해 필터링
-    post_filter = PostFilter(request.GET, queryset=Post.objects.all(), request=request)
-    posts = post_filter.qs
-
-    paginator = PageNumberPagination()
-    result_page = paginator.paginate_queryset(posts, request)
-    
-    if result_page is not None:
-        # 페이지네이션된 결과가 있을 때
-        serializer = PostListSerializer(result_page, many=True)
-        return paginator.get_paginated_response(serializer.data)
-    else:
-        # 페이지네이션이 필요 없을 때 (결과가 None일 때)
-        serializer = PostListSerializer(posts, many=True)
-        return Response(serializer.data)
-
-# fe1016e57e668da7b577eaf9ee2860e290fd0cb9
 @swagger_auto_schema(
     method='post',
     operation_summary="게시글 좋아요/좋아요 취소",
