@@ -16,6 +16,8 @@ urlpatterns = [
     path('kakao/callback/', views.kakao_callback, name="kakao_callback"),
     
     # profile endpoint
-    # path('check/', views.check_user_info, name='check_user_info'),
+    path('check/username/', views.CheckUsername.as_view(), name='check_username'),
+
+
     path('test/', views.TestView.as_view(), name="test")
 ]

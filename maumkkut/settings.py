@@ -13,22 +13,20 @@ https://docs.djangoproject.com/en/5.0/ref/settings/
 from pathlib import Path
 import os
 from dotenv import load_dotenv
-from datetime import timedelta
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 load_dotenv()
 
-
 SECRET_KEY = os.getenv('SECRET_KEY')
 DEBUG = 'False'
-
 # CORS 관련
 CORS_ALLOW_ALL_ORIGINS = True
 CORS_ALLOW_HEADERS = ['*']
 
+
 # 배포서버
-allowed_hosts = os.getenv('ALLOWED_HOSTS', 'localhost')  #기본값은 문자열로 설정
-ALLOWED_HOSTS = [host.strip() for host in allowed_hosts.split(',')]
+allowed_hosts = os.getenv('ALLOWED_HOSTS')
+ALLOWED_HOSTS = [host.strip() for host in allowed_hosts.split(',') if host.strip()]
 
 # 로컬서버
 # local_hosts = os.getenv('LOCAL')
@@ -185,6 +183,7 @@ SWAGGER_SETTINGS = {
         }
     },
     'USE_SESSION_AUTH': False,
+    "DEFAULT_MODEL_RENDERING": "example"
 }
 
 AUTH_USER_MODEL = 'accounts.User'

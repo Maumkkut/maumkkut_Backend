@@ -4,11 +4,13 @@ from django.contrib.auth import login, get_user_model
 import requests
 from rest_framework import status
 import os
-from dj_rest_auth.registration.views import RegisterView
-from .serializers import CustomRegisterSerializer
-from rest_framework.response import Response
-from rest_framework_simplejwt.tokens import RefreshToken
 from django.views import View
+from rest_framework.decorators import api_view, permission_classes
+from rest_framework.response import Response
+from drf_yasg.utils import swagger_auto_schema
+from drf_yasg import openapi
+from rest_framework.permissions import IsAuthenticatedOrReadOnly, IsAdminUser
+from rest_framework.views import APIView
 
 class TestView(View):
     def get(self, request):
@@ -108,6 +110,7 @@ def google_callback(request):
                         "email": user.email,
                     },
                     "message": "Login successful, please complete your profile.",
+                    "add_info": True,
                     "redirect_url": "http://localhost:5173/signin/loading"
                 },
                 status=status.HTTP_200_OK,
@@ -119,6 +122,7 @@ def google_callback(request):
                     "id": user.id,
                     "email": user.email,
                 },
+                "add_info": False,
                 "message": "Login successful",
             },
             status=status.HTTP_200_OK,
@@ -235,9 +239,113 @@ def kakao_callback(request):
     except Exception as e:
         return JsonResponse({"status": 400, "message": str(e)}, status=status.HTTP_400_BAD_REQUEST)
     
-def check_user_info(request):
-    user = request.user
-    if user.is_authenticated:
-        profile_complete = bool(user.phone_number)
-        return JsonResponse({'profile_complete': profile_complete})
-    return JsonResponse({"status": 401, "message": "인증되지 않은 사용자"})
+
+# username 중복체크 API
+class CheckUsername(APIView):
+    # permission_classes = [IsAuthenticatedOrReadOnly]
+
+    @swagger_auto_schema(
+        operation_summary="username 중복체크",
+        operation_description="username 현재 등록여부를 확인합니다.",
+        manual_parameters=[
+            openapi.Parameter(
+                'username', 
+                openapi.IN_QUERY, 
+                description="username", 
+                type=openapi.TYPE_STRING,
+                required=True
+            ),
+        ],
+        responses={
+            200: openapi.Response(
+                description="사용할 수 있는 ID입니다.",
+                examples={
+                    "application/json": {
+                        "message": "사용할 수 있는 ID입니다.",
+                        "username": "user1",
+                    }
+                }
+            ),
+            409: openapi.Response(
+                description="존재하는 ID입니다.",
+                examples={
+                    "application/json": {
+                        "message": "존재하는 ID입니다."
+                    }
+                }
+            )
+        }
+    )
+    def get(self, request):
+        username = request.GET.get('username') # params: username
+        User = get_user_model()
+        if username:
+            # username(ID)이 존재할 경우
+            if User.objects.filter(username = username).exists():
+                return Response(
+                    {"message": "존재하는 ID입니다."}, 
+                    status=status.HTTP_409_CONFLICT
+                    )
+            # username이 존재하지 않는 경우
+            return Response(
+                {
+                    "message": "사용할 수 있는 ID입니다.",
+                    "username": username,
+                },
+                status=status.HTTP_200_OK
+            )
+
+# nickname 중복체크
+class CheckNickname(APIView):
+    # permission_classes = [IsAuthenticatedOrReadOnly]
+
+    @swagger_auto_schema(
+        operation_summary="닉네임 중복체크",
+        operation_description="닉네임 존재여부를 확인합니다.",
+        manual_parameters=[
+            openapi.Parameter(
+                'nickname', 
+                openapi.IN_QUERY, 
+                description="nickname", 
+                type=openapi.TYPE_STRING,
+                required=True
+            ),
+        ],
+        responses={
+            200: openapi.Response(
+                description="사용할 수 있는 닉네임입니다.",
+                examples={
+                    "application/json": {
+                        "message": "사용할 수 있는 닉네임입니다.",
+                        "nickname": "user1_nickname",
+                    }
+                }
+            ),
+            409: openapi.Response(
+                description="존재하는 닉네임입니다.",
+                examples={
+                    "application/json": {
+                        "message": "존재하는 닉네임입니다."
+                    }
+                }
+            )
+        }
+    )
+    def get(self, request):
+        nickname = request.GET.get('nickname') # params: nickname
+        User = get_user_model()
+        if nickname:
+            # 닉네임이 존재할 경우
+            if User.objects.filter(nickname = nickname).exists():
+                return Response(
+                    {"message": "존재하는 닉네임입니다."}, 
+                    status=status.HTTP_409_CONFLICT
+                    )
+            # 닉네임이 존재하지 않는 경우
+            return Response(
+                {
+                    "message": "사용할 수 있는 닉네임입니다.",
+                    "username": nickname,
+                },
+                status=status.HTTP_200_OK
+            )
