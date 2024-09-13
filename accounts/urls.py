@@ -18,6 +18,8 @@ urlpatterns = [
     # profile endpoint
     path('check/username/', views.CheckUsername.as_view(), name='check_username'),
 
+    # group endpoint
+    path('group/', views.GroupView.as_view(), name='group'),
 
     path('test/', views.TestView.as_view(), name="test")
 ]

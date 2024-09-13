@@ -11,6 +11,7 @@ from drf_yasg.utils import swagger_auto_schema
 from drf_yasg import openapi
 from rest_framework.permissions import IsAuthenticatedOrReadOnly, IsAdminUser
 from rest_framework.views import APIView
+from .serializers import GroupSerializer
 
 class TestView(View):
     def get(self, request):
@@ -349,3 +350,21 @@ class CheckNickname(APIView):
                 },
                 status=status.HTTP_200_OK
             )
+
+class GroupView(APIView):
+    def post(self, request):
+        User = get_user_model()
+        leader_id = request.data.get('leader')
+        member_ids = request.data.get('members', [])
+        # start_date = request.data.get('start_date')
+        # end_date = request.data.get('end_date')
+
+        leader = User.objects.filter(id=leader_id).first()
+        members = User.objects.filter(id__in=member_ids)
+        print(request.data)
+        serializer = GroupSerializer(data={**request.data, 'leader': leader, 'members': members})
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
