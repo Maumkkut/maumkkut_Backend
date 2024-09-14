@@ -14,13 +14,13 @@ def filter_type(areacode, tour_type):
         ).filter(
             Q(cat1='A03') | Q(cat3='A02020400') | Q(cat3='A02020500')
         )
-    elif tour_type == '관람형 배추':
+    elif tour_type == '관람형 곤드레':
         tour_data = Tours.objects.filter(
         sigungucode=areacode
         ).filter(
             Q(cat2='A0201') | Q(cat3='A02030200') | Q(cat3='A02030300') | Q(cat3='A02050200') | Q(cat3='A02060100') | Q(cat3='A02060200') | Q(cat3='A02060300') | Q(cat3='A02060500') | Q(cat3='A04010700')
         )
-    elif tour_type == '미식형 황태':
+    elif tour_type == '미식형 송이':
         tour_data = Tours.objects.filter(
         sigungucode=areacode
         ).filter(

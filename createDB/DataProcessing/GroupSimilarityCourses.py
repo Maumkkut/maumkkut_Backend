@@ -158,7 +158,10 @@ def recommend_similar_group_view(current_group_id, target_area):
             "title": tour.title,
             "addr1": tour.addr1,
             "mapx": tour.mapx,
-            "mapy": tour.mapy
+            "mapy": tour.mapy,
+            "cat1": tour.cat1,  # cat1 추가
+            "cat2": tour.cat2,  # cat2 추가
+            "cat3": tour.cat3   # cat3 추가
         }
         for tour in selected_route.route_details.all()
     ]

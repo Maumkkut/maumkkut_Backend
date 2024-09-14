@@ -57,12 +57,12 @@ def get_tour_courses(character_type):
             'cat3_ranges': ['A03010200 ~ A03050100', 'A02020400 ~ A02020500'],
             'cat2': ['A0301', 'A0305', 'A0202']
         },
-        "관람형 배추": {
+        "관람형 곤드레": {
             'type_ids': [14, 12, 25],
             'cat3_ranges': ['A02010100 ~ A02011000', 'A02030200 ~ A02030300', 'A02050200 ~ A02050200', 'A02060100 ~ A02060500', 'A04010700 ~ A04010700'],
             'cat2': ['A0201', 'A0203', 'A0205', 'A0206', 'A0401']
         },
-        "미식형 황태": {
+        "미식형 송이": {
             'type_ids': [39, 38, 12],
             'cat3_ranges': ['A05020700 ~ A05020900', 'A04010100 ~ A04010200', 'A02030100 ~ A02030100', 'A02040600 ~ A02040600'],
             'cat2': ['A0502', 'A0401', 'A0203', 'A0204']
@@ -224,8 +224,20 @@ def recommend_course_view(importance_list, travel_character, region):
 
     result = build_course_pattern(tour_courses, food_courses, relaxation, food_importance)
     
-    result_list = [{"title": course.title, "addr1": course.addr1, "mapx": course.mapx, "mapy": course.mapy} for course in result]
+    # result_list = [{"title": course.title, "addr1": course.addr1, "mapx": course.mapx, "mapy": course.mapy} for course in result]
+    # 결과 리스트에 cat1, cat2, cat3 포함
+    result_list = [{
+        "title": course.title,
+        "addr1": course.addr1,
+        "mapx": course.mapx,
+        "mapy": course.mapy,
+        "cat1": course.cat1,  # cat1 추가
+        "cat2": course.cat2,  # cat2 추가
+        "cat3": course.cat3  # cat3 추가
+    } for course in result]
+
 
     return result_list
 
 
+print(recommend_course_view([1,1,1,1,1,1,1,1,1,2],'힐링형 감자','강릉'))
