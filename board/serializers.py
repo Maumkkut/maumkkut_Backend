@@ -41,5 +41,5 @@ class PostDetailSerializer(serializers.ModelSerializer):
         read_only_fields = ['author_username', 'created_at']
 
     def get_comments(self, obj):
-        comments_queryset = Comment.objects.filter(post=obj).order_by('-created_at')
+        comments_queryset = Comment.objects.filter(post=obj, parent_comment__isnull=True).order_by('-created_at')
         return CommentSerializer(comments_queryset, many=True).data

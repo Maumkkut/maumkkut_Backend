@@ -141,7 +141,11 @@ def get_recent_posts(request, days):
     return paginator.get_paginated_response(serializer.data)
 
 def filter_posts(request, board_type):
-    queryset = Post.objects.filter(board_type=board_type)
+    if board_type == "all":
+        queryset = Post.objects.all()
+    else:
+        queryset = Post.objects.filter(board_type=board_type)
+        
 
     # 기간(days) 필터링
     days = request.GET.get('days')
