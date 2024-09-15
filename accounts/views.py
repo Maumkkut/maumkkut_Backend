@@ -347,6 +347,34 @@ class CheckNickname(APIView):
 
 
 class AddUserInfo(APIView):
+
+    @swagger_auto_schema(
+        operation_summary="사용자 정보 업데이트",
+        operation_description="사용자 정보 업데이트",
+        request_body=openapi.Schema(
+            type=openapi.TYPE_OBJECT,
+            properties={
+                'phone_number': openapi.Schema(type=openapi.TYPE_STRING),
+                'date_of_birth': openapi.Schema(type=openapi.FORMAT_DATE),
+                'name': openapi.Schema(type=openapi.TYPE_STRING),
+                'nickname': openapi.Schema(type=openapi.TYPE_STRING),
+            },
+            required=['phone_number', 'date_of_birth', 'name', 'nickname']
+        ),
+        responses={
+            200: openapi.Response(
+                description="업데이트 성공",
+                examples={
+                    "application/json": {
+                        "message": "사용자 정보가 업데이트되었습니다."
+                    }
+                }
+            ),
+            400: openapi.Response(
+                description="업데이트 실패",
+            )
+        }
+    )
     def post(self, request):
         user = request.user
         data = request.data
