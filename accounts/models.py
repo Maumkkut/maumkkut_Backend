@@ -44,6 +44,7 @@ class Group(models.Model):
     start_date = models.DateField()
     end_date = models.DateField()
     created_at = models.DateTimeField(auto_now_add=True)
+    region = models.CharField(max_length=255, blank=False, null=False)
 
     def __str__(self):
         return self.name

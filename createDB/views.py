@@ -14,7 +14,9 @@ from .DataProcessing.TravelCharacter import recommend_character
 from .DataProcessing.PersonalizedTypeCourse import recommend_course_view
 from .DataProcessing.GroupSimilarityCourses import recommend_similar_group_view
 from .DataProcessing.RandomRoute import random_area, random_tour_type
-
+import json
+from django.contrib.auth import get_user_model
+from .models import User_info
 # 지역별 랜덤 관광지 추천 API
 @swagger_auto_schema(
     method='get',
@@ -421,15 +423,19 @@ def get_routes_by_tour_type_area(request, areacode, tour_type):
     ),
     responses={
         200: openapi.Response(
-            description="성공적으로 추천된 캐릭터 정보입니다.",
+            description="추천된 여행 유형 저장",
             examples={
                 "application/json": {
-                    "name": "도전형 인삼",
-                    "description": "새로운 시도를 즐기며 끊임없이 도전하는 여행을 선호",
-                    "recommended_place": "인제",
-                    "reason": "도전을 즐기는 '인삼' 유형에게는 다양한 모험과 활동을 할 수 있는 인제가 적합합니다.",
-                    "best_match": "액티비티형 옥수수",
-                    "match_reason": "모험과 새로운 도전을 즐기는 두 유형은 함께 다양한 액티비티를 체험하며 에너지를 발산할 수 있는 여행을 즐길 수 있습니다."
+                    "message": "유저 여행 유형이 저장되었습니다.",
+                    "result": {
+                        "username": "user1",
+                        "name": "미식형 황태",
+                        "description": "맛집 탐방과 음식을 즐기는 여행을 선호",
+                        "recommended_place": "춘천",
+                        "reason": "맛집 탐방과 음식을 즐기는 '황태' 유형에게 춘천은 다양한 맛집이 있어 미식 여행을 즐기기에 적합한 곳입니다.",
+                        "best_match": "관람형 배추",
+                        "match_reason": "맛집 탐방과 문화 관람을 함께 즐길 수 있는 두 유형은 여행 중 자연스럽게 서로의 취향을 반영한 일정을 만들 수 있어 서로에게 긍정적인 영향을 줍니다."
+                    }
                 }
             }
         ),
@@ -440,18 +446,42 @@ def get_routes_by_tour_type_area(request, areacode, tour_type):
 # @permission_classes([IsAuthenticatedOrReadOnly])
 def recommend_character_view(request):
     try:
-        importance_list = request.data.get('importance_list')
+        print(request.data)
+        user_id = request.data.get('user_id')
+        importance = request.data.get('importance_list')
+        importance_list = json.loads(importance)
+        print(importance_list)
         if not isinstance(importance_list, list) or len(importance_list) != 10:
             return Response({"error": "중요도 리스트가 잘못되었습니다."}, status=status.HTTP_400_BAD_REQUEST)
 
         character_info = recommend_character(importance_list)
+        User = get_user_model()
+        user = User.objects.get(id=user_id)
+        user_info, created = User_info.objects.get_or_create(user=user)
+        user_info.user_type = character_info[0]
+        
+        user_info.user_healing = importance_list[0]
+        user_info.user_relax = importance_list[1]
+        user_info.user_nature = importance_list[2]
+        user_info.user_exhibit = importance_list[3]
+        user_info.user_food = importance_list[4]
+        user_info.user_adventure = importance_list[5]
+        user_info.user_people = importance_list[7]
+        user_info.user_shopping = importance_list[8]
+        user_info.user_photo = importance_list[9]
+        user_info.save()
+
         return Response({
-            "name": character_info[0],
-            "description": character_info[1],
-            "recommended_place": character_info[2],
-            "reason": character_info[3],
-            "best_match": character_info[4],
-            "match_reason": character_info[5]
+            "message": "유저 여행 유형이 저장되었습니다.",
+            "result":{
+                "username":user.username,
+                "name": character_info[0],
+                "description": character_info[1],
+                "recommended_place": character_info[2],
+                "reason": character_info[3],
+                "best_match": character_info[4],
+                "match_reason": character_info[5]
+            }
         }, status=status.HTTP_200_OK)
     except Exception as e:
         return Response({"error": str(e)}, status=status.HTTP_400_BAD_REQUEST)
