@@ -1,4 +1,4 @@
-from ..models import Groups, Routes_plan, Tour_plan_data
+from ..models import GroupInfo, Routes_plan, Tour_plan_data
 
 def route_data_by_pk(route_pk):
     route = Routes_plan.objects.get(pk=route_pk)
@@ -80,7 +80,7 @@ def route_data_by_area(areacode):
     return results
 
 def route_data_by_tour_type(tour_type):
-    groups = Groups.objects.filter(tour_type=tour_type)
+    groups = GroupInfo.objects.filter(tour_type=tour_type)
     filtered_routes = Routes_plan.objects.filter(group__in=groups)
     
     tour_plan_data = Tour_plan_data.objects.filter(route__in=filtered_routes).select_related('tour').prefetch_related('route')
@@ -125,7 +125,7 @@ def route_data_by_tour_type(tour_type):
     return results
 
 def route_data_by_tour_type_area(areacode, tour_type):
-    groups = Groups.objects.filter(tour_type=tour_type)
+    groups = GroupInfo.objects.filter(tour_type=tour_type)
     filtered_routes = Routes_plan.objects.filter(group__in=groups, route_area=areacode)
     
     tour_plan_data = Tour_plan_data.objects.filter(route__in=filtered_routes).select_related('tour').prefetch_related('route')

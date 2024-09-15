@@ -1,6 +1,6 @@
 from django.db import models
 from django.conf import settings
-
+from accounts.models import Group
 # Create your models here.
 
 # 국문관광지 데이터
@@ -47,10 +47,8 @@ class User_info_tour_dislike(models.Model):
     user_info = models.ForeignKey(User_info, on_delete=models.CASCADE)
     tour = models.ForeignKey('Tours', on_delete=models.CASCADE)
 
-class Groups(models.Model):
-  users = models.ManyToManyField(
-    settings.AUTH_USER_MODEL, related_name='joined_group', through='Group_Members'
-    )
+class GroupInfo(models.Model):
+  group = models.ForeignKey(Group, on_delete=models.CASCADE)
   people_num = models.IntegerField()
   tour_type = models.CharField(max_length=10, null=True)
   group_name = models.CharField(max_length=20)
@@ -61,7 +59,7 @@ class Routes_plan(models.Model):
   route_area = models.IntegerField()
   tour_startdate = models.DateTimeField(null=True, blank=True)
   tour_enddate = models.DateTimeField(null=True, blank=True)
-  group = models.ForeignKey(Groups, on_delete=models.CASCADE, null=True, blank=True)
+  group = models.ForeignKey(GroupInfo, on_delete=models.CASCADE, null=True, blank=True)
   route_details = models.ManyToManyField(Tours, related_name='get_routes', through='Tour_plan_data')
 
 
@@ -73,5 +71,5 @@ class Tour_plan_data(models.Model):
 
 class Group_Members(models.Model):
   users = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
-  group = models.ForeignKey(Groups, on_delete=models.CASCADE)
+  group = models.ForeignKey(GroupInfo, on_delete=models.CASCADE)
 

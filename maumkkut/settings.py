@@ -38,6 +38,7 @@ INSTALLED_APPS = [
     'createDB',
     'corsheaders',
     'accounts',
+    'group_tour',
     'django.contrib.sites',
     'allauth',
     'allauth.account',

@@ -1,10 +1,8 @@
 from dj_rest_auth.registration.serializers import RegisterSerializer
-from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
 from rest_framework import serializers
-from rest_framework_simplejwt.tokens import RefreshToken
 from django.core.validators import RegexValidator
 from django.contrib.auth import get_user_model
-from .models import Group
+
 
 phone_number_regex = RegexValidator(
         regex=r'^01(?:0|1|[6-9])-(\d{3,4})-(\d{4})$',
@@ -60,19 +58,8 @@ class CustomRegisterSerializer(RegisterSerializer):
         # 응답 데이터로 토큰 포함
         return user
     
-
-class GroupSerializer(serializers.ModelSerializer):
-    User = get_user_model()
-    members = serializers.PrimaryKeyRelatedField(queryset=User.objects.all(), many=True, required=False)
-    leader = serializers.PrimaryKeyRelatedField(queryset=User.objects.all(), required=True)
-   
+# 정보 업데이트
+class UserInfoSerializer(serializers.ModelSerializer):
     class Meta:
-        model = Group
-        fields = ['id', 'name', 'members', 'leader', 'region', 'start_date', 'end_date']
-        
-    def create(self, validated_data):
-        members = validated_data.pop('members', [])
-        leader = validated_data.pop('leader')
-        group = Group.objects.create(leader=leader, **validated_data)
-        group.members.set(members)
-        return group
+        model = get_user_model()
+        fields = ['phone_number', 'date_of_birth', 'name', 'nickname']

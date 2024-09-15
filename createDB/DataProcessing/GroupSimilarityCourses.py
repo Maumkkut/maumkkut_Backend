@@ -1,5 +1,5 @@
 from datetime import datetime
-from ..models import Groups, Group_Members, Routes_plan, Tours, User_info
+from ..models import GroupInfo, Group_Members, Routes_plan, Tours, User_info
 from sklearn.metrics.pairwise import cosine_similarity
 from sklearn.feature_extraction.text import CountVectorizer
 
@@ -82,7 +82,7 @@ def find_similar_group(current_group_preferences, groups_data):
 
 
 # input -> group_id(int)
-def recommend_similar_group_view(current_group_id, target_area):
+def recommend_similar_group(current_group_id, target_area):
     # 지역명을 숫자 코드로 변환
     region_codes = {
         "강릉": 1,
@@ -125,7 +125,7 @@ def recommend_similar_group_view(current_group_id, target_area):
     current_group_weighted_list = sum(current_group_preferences, [])
 
     # 특정 지역(area_code)에 해당하는 그룹만 필터링
-    filtered_groups = Groups.objects.filter(routes_plan__route_area=area_code).exclude(id=current_group_id).distinct()
+    filtered_groups = GroupInfo.objects.filter(routes_plan__route_area=area_code).exclude(id=current_group_id).distinct()
 
     groups_data = []
     for group in filtered_groups:
