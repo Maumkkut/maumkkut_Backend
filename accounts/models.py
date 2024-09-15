@@ -36,3 +36,33 @@ class User(AbstractUser):
 
     def is_group_member(self):
         return self.role == self.ROLE_GROUP_MEMBER
+    
+class Group(models.Model):
+    name = models.CharField(max_length=255, unique=True)
+    members = models.ManyToManyField(User, related_name='group_member')
+    leader = models.ForeignKey(User, related_name='group_leader', on_delete=models.CASCADE)
+    start_date = models.DateField()
+    end_date = models.DateField()
+    created_at = models.DateTimeField(auto_now_add=True)
+    region = models.CharField(max_length=255, blank=False, null=False)
+
+    def __str__(self):
+        return self.name
+
+    # 유저 조회
+    def get_members(self):
+        return self.members.all()
+
+    # 유저 확인
+    def is_user_in_group(self, user):
+        return self.members.filter(id=user.id).exists()
+
+    # 유저 추가
+    def add_member(self, user):
+        if not self.is_user_in_group(user):
+            self.members.add(user)
+
+    # 유저 제거
+    def remove_member(self, user):
+        if self.is_user_in_group(user):
+            self.members.remove(user)

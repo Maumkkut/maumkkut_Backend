@@ -11,6 +11,9 @@ from drf_yasg.utils import swagger_auto_schema
 from drf_yasg import openapi
 from rest_framework.permissions import IsAuthenticatedOrReadOnly, IsAdminUser
 from rest_framework.views import APIView
+from .serializers import GroupSerializer
+import json
+from .models import Group
 
 class TestView(View):
     def get(self, request):
@@ -349,3 +352,54 @@ class CheckNickname(APIView):
                 },
                 status=status.HTTP_200_OK
             )
+
+class GroupView(APIView):
+    def get(self, request):
+        group_id = request.query_params.get('group_id')
+        
+        if not group_id:
+            return Response({"error": "group id는 null 일 수 없습니다."}, status=status.HTTP_400_BAD_REQUEST)
+        
+        try:
+            group = Group.objects.get(id=group_id)
+        except Group.DoesNotExist:
+            return Response({"error": "존재하지 않는 그룹입니다."}, status=status.HTTP_404_NOT_FOUND)
+        
+        serializer = GroupSerializer(group)
+        return Response(serializer.data, status=status.HTTP_200_OK)
+    
+    def post(self, request):
+        # print(request.data)
+        User = get_user_model()
+        name = request.data.get('name')
+        leader_id = request.data.get('leader')
+        member_ids = request.data.get('members', [])
+        start_date = request.data.get('start_date')
+        end_date = request.data.get('end_date')
+        region = request.data.get('region')
+        try:
+            member_ids = json.loads(member_ids)
+        except json.JSONDecodeError:
+            return Response({"error": "포맷 에러"}, status=status.HTTP_400_BAD_REQUEST)
+
+        leader = User.objects.get(id=leader_id)
+        members = User.objects.filter(id__in=member_ids)
+
+        # print(request.data)
+
+        data = {
+            'name': name,
+            'leader': leader.id,  # 리더의 ID 전달
+            'members': list(members.values_list('id', flat=True)), # 멤버 ID 리스트 전달
+            'start_date': start_date,
+            'end_date': end_date,
+            'region': region,
+        }
+
+        serializer = GroupSerializer(data=data)
+
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
