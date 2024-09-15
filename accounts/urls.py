@@ -17,6 +17,7 @@ urlpatterns = [
     
     # profile endpoint
     path('check/username/', views.CheckUsername.as_view(), name='check_username'),
+    path('check/nickname/', views.CheckNickname.as_view(), name='check_nickname'),
 
 
     path('test/', views.TestView.as_view(), name="test")
