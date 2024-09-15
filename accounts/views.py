@@ -11,35 +11,11 @@ from drf_yasg.utils import swagger_auto_schema
 from drf_yasg import openapi
 from rest_framework.permissions import IsAuthenticatedOrReadOnly, IsAdminUser
 from rest_framework.views import APIView
-from .serializers import GroupSerializer
-import json
-from .models import Group
+from .serializers import UserInfoSerializer
 
 class TestView(View):
     def get(self, request):
         return JsonResponse({'status': 'Test view working!'}, status=status.HTTP_200_OK)
-    
-# class CustomRegisterView(RegisterView):
-#     serializer_class = CustomRegisterSerializer
-#     def get_response(self):
-#         user = self.user
-#         print(user)
-#         # 커스텀 토큰 생성
-#         tokens = self.get_tokens_for_user(user)
-#         print(tokens)
-#         return Response({
-#             'refresh': tokens['refresh'],
-#             'access': tokens['access'],
-#         }, status=status.HTTP_201_CREATED)
-
-#     def get_tokens_for_user(self, user):
-#         refresh = RefreshToken.for_user(user)
-#         return {
-#             'refresh': str(refresh),
-#             'access': str(refresh.access_token),
-#         }
-
-
     
 def google_login(request):
     CLIENT_ID = os.environ.get('GOOGLE_CLIENT_ID')
@@ -264,8 +240,11 @@ class CheckUsername(APIView):
                 description="사용할 수 있는 ID입니다.",
                 examples={
                     "application/json": {
-                        "message": "사용할 수 있는 ID입니다.",
-                        "username": "user1",
+                        "message": "존재하지 않는 ID입니다.",
+                        "result": 
+                            {
+                                "userId": "user1",
+                            }
                     }
                 }
             ),
@@ -273,8 +252,12 @@ class CheckUsername(APIView):
                 description="존재하는 ID입니다.",
                 examples={
                     "application/json": {
-                        "message": "존재하는 ID입니다."
-                    }
+                        "message": "존재하는 ID입니다.",
+                        "result": 
+                            {
+                                "userId": "user1",
+                            }
+                     }
                 }
             )
         }
@@ -286,14 +269,23 @@ class CheckUsername(APIView):
             # username(ID)이 존재할 경우
             if User.objects.filter(username = username).exists():
                 return Response(
-                    {"message": "존재하는 ID입니다."}, 
+                    {
+                        "message": "존재하는 ID입니다.",
+                        "result": 
+                            {
+                                "userId": username,
+                            }
+                     }, 
                     status=status.HTTP_409_CONFLICT
                     )
             # username이 존재하지 않는 경우
             return Response(
                 {
-                    "message": "사용할 수 있는 ID입니다.",
-                    "username": username,
+                    "message": "존재하지 않는 ID입니다.",
+                    "result": 
+                        {
+                            "userId": username,
+                        }
                 },
                 status=status.HTTP_200_OK
             )
@@ -353,53 +345,14 @@ class CheckNickname(APIView):
                 status=status.HTTP_200_OK
             )
 
-class GroupView(APIView):
-    def get(self, request):
-        group_id = request.query_params.get('group_id')
-        
-        if not group_id:
-            return Response({"error": "group id는 null 일 수 없습니다."}, status=status.HTTP_400_BAD_REQUEST)
-        
-        try:
-            group = Group.objects.get(id=group_id)
-        except Group.DoesNotExist:
-            return Response({"error": "존재하지 않는 그룹입니다."}, status=status.HTTP_404_NOT_FOUND)
-        
-        serializer = GroupSerializer(group)
-        return Response(serializer.data, status=status.HTTP_200_OK)
-    
+
+class AddUserInfo(APIView):
     def post(self, request):
-        # print(request.data)
-        User = get_user_model()
-        name = request.data.get('name')
-        leader_id = request.data.get('leader')
-        member_ids = request.data.get('members', [])
-        start_date = request.data.get('start_date')
-        end_date = request.data.get('end_date')
-        region = request.data.get('region')
-        try:
-            member_ids = json.loads(member_ids)
-        except json.JSONDecodeError:
-            return Response({"error": "포맷 에러"}, status=status.HTTP_400_BAD_REQUEST)
-
-        leader = User.objects.get(id=leader_id)
-        members = User.objects.filter(id__in=member_ids)
-
-        # print(request.data)
-
-        data = {
-            'name': name,
-            'leader': leader.id,  # 리더의 ID 전달
-            'members': list(members.values_list('id', flat=True)), # 멤버 ID 리스트 전달
-            'start_date': start_date,
-            'end_date': end_date,
-            'region': region,
-        }
-
-        serializer = GroupSerializer(data=data)
-
+        user = request.user
+        data = request.data
+        
+        serializer = UserInfoSerializer(user, data=data, partial=True)
         if serializer.is_valid():
             serializer.save()
-            return Response(serializer.data, status=status.HTTP_201_CREATED)
+            return Response({"message": "사용자 정보가 업데이트되었습니다."}, status=status.HTTP_200_OK)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-

@@ -12,7 +12,7 @@ from .DataProcessing.GetRouteData import (
 )
 from .DataProcessing.TravelCharacter import recommend_character
 from .DataProcessing.PersonalizedTypeCourse import recommend_course_view
-from .DataProcessing.GroupSimilarityCourses import recommend_similar_group_view
+from .DataProcessing.GroupSimilarityCourses import recommend_similar_group
 from .DataProcessing.RandomRoute import random_area, random_tour_type
 import json
 from django.contrib.auth import get_user_model
@@ -569,16 +569,17 @@ def recommend_course_view(request):
     }
 )
 @api_view(['POST'])
-@permission_classes([IsAuthenticatedOrReadOnly])
+# @permission_classes([IsAuthenticatedOrReadOnly])
 def recommend_similar_group_view(request):
     try:
         current_group_id = request.data.get('current_group_id')
         target_area = request.data.get('target_area')
-
+        print(request.data, current_group_id)
         if not current_group_id or not target_area:
             return Response({"error": "그룹 ID 또는 여행 지역이 잘못되었습니다."}, status=status.HTTP_400_BAD_REQUEST)
 
-        similar_group_courses = recommend_similar_group_view(current_group_id, target_area)
+        similar_group_courses = recommend_similar_group(current_group_id, target_area)
+        print(similar_group_courses)
         return Response(similar_group_courses, status=status.HTTP_200_OK)
     except Exception as e:
         return Response({"error": str(e)}, status=status.HTTP_400_BAD_REQUEST)

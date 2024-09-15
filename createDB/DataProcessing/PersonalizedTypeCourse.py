@@ -1,7 +1,7 @@
 from datetime import datetime
 from django.shortcuts import render
 from django.conf import settings
-from ..models import Groups, Group_Members, Tours, Routes_plan, Tour_plan_data
+from ..models import GroupInfo, Group_Members, Tours, Routes_plan, Tour_plan_data
 from django.shortcuts import get_object_or_404, get_list_or_404
 from geopy.distance import geodesic
 

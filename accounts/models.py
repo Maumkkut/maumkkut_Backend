@@ -1,7 +1,7 @@
 # accounts/models.py
 from django.db import models
 from django.contrib.auth.models import AbstractUser
-
+from django.contrib.auth import get_user_model
 # default user model
 # username(id), password1, password2, email
 # 추가 필드
@@ -66,3 +66,14 @@ class Group(models.Model):
     def remove_member(self, user):
         if self.is_user_in_group(user):
             self.members.remove(user)
+
+    @classmethod
+    def get_groups_for_user(cls, user_id):
+        User = get_user_model()
+        try:
+            user = User.objects.get(id=user_id)
+        except User.DoesNotExist:
+            return cls.objects.none()  # 빈 쿼리셋 반환
+        
+        # 유저가 멤버인 그룹과 리더인 그룹 모두 조회
+        return cls.objects.filter(members=user).distinct() | cls.objects.filter(leader=user).distinct()

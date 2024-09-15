@@ -6,6 +6,7 @@ urlpatterns = [
     # accounts
     path('', include('dj_rest_auth.urls')),  
     path('registration/', include('dj_rest_auth.registration.urls')), 
+    path('add-user-info/', views.AddUserInfo.as_view(), name="add_user_info"), 
     
     # google login endpoint
     path('google/login/', views.google_login, name="google_login"),
@@ -18,9 +19,6 @@ urlpatterns = [
     # profile endpoint
     path('check/username/', views.CheckUsername.as_view(), name='check_username'),
     path('check/nickname/', views.CheckNickname.as_view(), name='check_nickname'),
-
-    # group endpoint
-    path('group/', views.GroupView.as_view(), name='group'),
 
     path('test/', views.TestView.as_view(), name="test")
 ]
