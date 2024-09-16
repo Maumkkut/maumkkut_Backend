@@ -27,7 +27,13 @@ class UserPostSerializer(serializers.ModelSerializer):
             else:
                 return f"{hours}시간 전"
         else:
-            return obj.created_at.strftime('%Y-%m-%d')
+            if obj.created_at.year == now.year:
+                if obj.created_at.month == now.month:
+                    return f"{obj.created_at.day}일 전"
+                else:
+                    return f"{obj.created_at.month}월 전"
+            else:
+                return f"{obj.created_at.year}년 전"
 
 class UserCommentSerializer(serializers.ModelSerializer):
     post_title = serializers.CharField(source='post.title', read_only=True)
@@ -52,4 +58,10 @@ class UserCommentSerializer(serializers.ModelSerializer):
             else:
                 return f"{hours}시간 전"
         else:
-            return obj.created_at.strftime('%Y-%m-%d')
+            if obj.created_at.year == now.year:
+                if obj.created_at.month == now.month:
+                    return f"{obj.created_at.day}일 전"
+                else:
+                    return f"{obj.created_at.month}월 전"
+            else:
+                return f"{obj.created_at.year}년 전"
