@@ -11,7 +11,7 @@ from drf_yasg.utils import swagger_auto_schema
 from drf_yasg import openapi
 from rest_framework.permissions import IsAuthenticatedOrReadOnly, IsAdminUser
 from rest_framework.views import APIView
-from .serializers import UserInfoSerializer
+from .serializers import AddUserInfoSerializer, UserInfoSerializer
 
 class TestView(View):
     def get(self, request):
@@ -379,8 +379,53 @@ class AddUserInfo(APIView):
         user = request.user
         data = request.data
         
-        serializer = UserInfoSerializer(user, data=data, partial=True)
+        serializer = AddUserInfoSerializer(user, data=data, partial=True)
         if serializer.is_valid():
             serializer.save()
             return Response({"message": "사용자 정보가 업데이트되었습니다."}, status=status.HTTP_200_OK)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+class UserInfoView(APIView):
+
+    @swagger_auto_schema(
+        operation_summary="유저 정보 조회",
+        operation_description="유저의 정보를 조회합니다.",
+        responses={
+            200: openapi.Response(
+                description="유저 정보 조회 성공",
+                examples={
+                    "application/json": {
+                        "message": "유저 정보를 조회합니다",
+                        "result": {
+                            "name": "test1",
+                            "nickname": "test1",
+                            "email": "test@test.com",
+                            "phone_number": "010-0000-0000",
+                            "address": "test",
+                            "id": 1
+                        }
+                    }
+                }
+            ),
+            400: openapi.Response(
+                description="유저 정보 조회 실패",
+                examples={
+                    "application/json": {
+                        "message": "잘못된 접근입니다."
+                    }
+                }
+            )
+        }
+    )
+    def get(self, request):
+        user = request.user
+        print(user)
+        if user:
+            serializer = UserInfoSerializer(user)
+            return Response({
+                "message": "유저 정보를 조회합니다",
+                "result": serializer.data
+                }, status=status.HTTP_200_OK)
+            
+        # 잘못된 정보 조회
+        return Response({"message": "잘못된 접근입니다."}, status=status.HTTP_400_BAD_REQUEST)

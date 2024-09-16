@@ -216,7 +216,6 @@ class UserGroupView(APIView):
         groups = Group.get_groups_for_user(user.id)
         if groups:
             # 그룹이 존재할 경우
-            print(groups)
             serializer = GroupListSerializer(groups, many=True)
             return Response({
                 "message": "나의 그룹을 조회합니다",
