@@ -4,7 +4,7 @@ from rest_framework.views import APIView
 from drf_yasg.utils import swagger_auto_schema
 from drf_yasg import openapi
 from createDB.DataProcessing.FilterName import filter_type
-from .serializers import RandomListSerializer, SaveRandomTourListSerializer
+from .serializers import RandomListSerializer, SaveRandomTourListSerializer, RandomTourSerializer
 from .models import RandomTour, RandomTourOrder
 from travel_test.models import TravelTest
 from .translation_region_code import get_region_code
@@ -401,4 +401,59 @@ class CourseView(APIView):
         return Response({
                 "message": "랜덤 여행 코스를 수정합니다.",
                 "result": serializer.data
+                }, status=status.HTTP_200_OK)
+
+class CourseListView(APIView):
+    
+    # 유저의 코스 목록 조회
+    @swagger_auto_schema(
+        operation_summary="유저의 랜덤 여행 코스 목록 조회",
+        operation_description="유저의 랜덤 여행 코스 목록을 조회합니다.",
+        responses={
+            200: openapi.Response(
+                description="랜덤 여행 코스 목록 조회",
+                examples={
+                    "application/json": {
+                        "message": "랜덤 여행 코스 목록을 조회합니다.",
+                        "result": {
+                            "course_count": 2,
+                            "course_list": [
+                                {
+                                    "course_id": 1,
+                                    "created_at": "2024-09-16T19:30:11.176314Z"
+                                },
+                                {
+                                    "course_id": 2,
+                                    "created_at": "2024-09-16T19:30:11.176314Z"
+                                },
+                            ]
+                        }
+                    }
+                }
+            ),
+            204: openapi.Response(
+                description="랜덤 여행 코스 목록 조회",
+                examples={
+                    "application/json": {
+                        "message": "조회된 결과가 없습니다."
+                    }
+                }
+            ),
+        }
+    )
+    def get(self, request):
+        user = request.user
+        random_tour = RandomTour.objects.filter(user=user)
+        if not random_tour:
+            return Response({
+                "message": "조회된 결과가 없습니다.",
+                }, status=status.HTTP_204_NO_CONTENT)
+        
+        serializer = RandomTourSerializer(random_tour, many=True)
+        return Response({
+                "message": "랜덤 여행 코스 목록을 조회합니다.",
+                "result": {
+                    "course_count": random_tour.count(),
+                    "course_list": serializer.data,
+                }
                 }, status=status.HTTP_200_OK)

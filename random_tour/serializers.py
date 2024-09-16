@@ -3,10 +3,11 @@ from django.contrib.auth import get_user_model
 from createDB.models import Tours
 from .models import RandomTour, RandomTourOrder
 
-# class RandomTourSerializer(serializers.ModelSerializer):
-#     class Meta:
-#         model = RandomTour
-#         fields = ['id', 'title', 'addr1', 'mapx', 'mapy']
+class RandomTourSerializer(serializers.ModelSerializer):
+    course_id = serializers.IntegerField(source='id')
+    class Meta:
+        model = RandomTour
+        fields = ['course_id', 'created_at']
 
 class SaveRandomTourOrderSerializer(serializers.ModelSerializer):
     tour_id = serializers.IntegerField(source='tour.id')

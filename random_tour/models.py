@@ -7,6 +7,8 @@ User = get_user_model()
 class RandomTour(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     tour_list = models.ManyToManyField(Tours, through='RandomTourOrder')
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
 
 class RandomTourOrder(models.Model):
     random_tour = models.ForeignKey(RandomTour, on_delete=models.CASCADE)

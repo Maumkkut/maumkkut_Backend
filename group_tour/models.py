@@ -25,6 +25,7 @@ class LikeDislike(models.Model):
     is_liked = models.BooleanField(default=False)
     is_disliked = models.BooleanField(default=False)
     created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
     
     # 유저는 한 여행지에 한 번만 좋아요/싫어요 가능
     class Meta:
