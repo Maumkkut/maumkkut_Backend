@@ -2,7 +2,7 @@ from rest_framework import status
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from accounts.models import Group
-from .serializers import GroupSerializer, GroupListSerializer, GroupTourListSerializer
+from .serializers import GroupSerializer, GroupListSerializer, GroupTourListSerializer, LikeDislikeSerializer, LikeTourListSerializer
 from django.contrib.auth import get_user_model
 import json
 from rest_framework.response import Response
@@ -11,7 +11,7 @@ from drf_yasg import openapi
 from django.shortcuts import get_object_or_404
 from createDB.models import GroupInfo, Tours
 from createDB.DataProcessing.GroupSimilarityCourses import recommend_similar_group
-from .models import GroupTourList, GroupTourOrder
+from .models import GroupTourList, GroupTourOrder, LikeDislike, Tours
 
 # 그룹 생성 및 조회
 class GroupView(APIView):
@@ -141,15 +141,9 @@ class GroupView(APIView):
         start_date = request.data.get('start_date')
         end_date = request.data.get('end_date')
         region = request.data.get('region')
-        try:
-            member_ids = json.loads(member_ids)
-        except json.JSONDecodeError:
-            return Response({"error": "포맷 에러"}, status=status.HTTP_400_BAD_REQUEST)
 
         leader = User.objects.get(id=leader_id)
         members = User.objects.filter(id__in=member_ids)
-
-        # print(request.data)
 
         data = {
             'name': name,
@@ -512,5 +506,189 @@ class GroupTourListView(APIView):
             "result": serializer.data
         }, status=status.HTTP_200_OK)
 
-        # return Response({"message": "데이터가 유효하지 않습니다.",
-        #                     "errors": serializer.errors}, status=status.HTTP_400_BAD_REQUEST)
+
+class LikeDislikeView(APIView):
+
+    @swagger_auto_schema(
+        operation_summary="여행지 좋아요/싫어요 조회",
+        operation_description="여행지의 좋아요/싫어요를 조회합니다.",
+        manual_parameters=[
+            openapi.Parameter(
+                'tour_id', 
+                openapi.IN_QUERY, 
+                description="tour_id", 
+                type=openapi.TYPE_INTEGER,
+                required=True
+            ),
+        ],
+        responses={
+            200: openapi.Response(
+                description="조회 성공",
+                examples={
+                    "application/json": {
+                    "message": "좋아요/싫어요 상태를 조회합니다.",
+                    "result": {
+                        "user": 1,
+                        "tour": 1,
+                        "is_liked": "true",
+                        "is_disliked": "false"
+                    }
+                }
+                }
+            ),
+            404: openapi.Response(
+                description="조회 실패",
+                examples={
+                    "application/json": {
+                        "message": "좋아요/싫어요 기록이 없습니다."
+                }
+                }
+            )
+        }
+    )
+    def get(self, request):
+        # 단일 여행지에 대한 유저의 좋아요/싫어요 상태를 조회
+        user = request.user
+        tour_id = request.query_params.get('tour_id')
+        tour = get_object_or_404(Tours, id=tour_id)
+        like_dislike = LikeDislike.objects.filter(user=user, tour=tour).first()
+
+        if like_dislike:
+            serializer = LikeDislikeSerializer(like_dislike)
+            return Response({"message": "좋아요/싫어요 상태를 조회합니다.", "result": serializer.data}, status=status.HTTP_200_OK)
+        return Response({"message": "좋아요/싫어요 기록이 없습니다."}, status=status.HTTP_404_NOT_FOUND)
+
+    @swagger_auto_schema(
+        operation_summary="여행지 좋아요/싫어요 업데이트",
+        operation_description="여행지 좋아요/싫어요를 업데이트합니다.",
+        request_body=openapi.Schema(
+            type=openapi.TYPE_OBJECT,
+            properties={
+                'tour_id': openapi.Schema(type=openapi.TYPE_INTEGER),
+                'is_liked': openapi.Schema(type=openapi.TYPE_BOOLEAN),
+                'is_disliked': openapi.Schema(type=openapi.TYPE_BOOLEAN),
+            },
+            required=['tour_id', 'is_liked', 'is_disliked']
+        ),
+        responses={
+            200: openapi.Response(
+                description="좋아요/싫어요 생성 및 수정",
+                examples={
+                    "application/json": {
+                        "message": "좋아요/싫어요 상태가 저장/업데이트되었습니다.",
+                        "result": {
+                            "user": 1,
+                            "tour": 1,
+                            "is_liked": "true",
+                            "is_disliked": "false"
+                        }
+                    }
+                }
+            ),
+            400: openapi.Response(
+                description="좋아요와 싫어요 둘 다 true일 경우",
+                examples={
+                    "application/json": {
+                        "message": "유효하지 않은 데이터입니다.",
+                        "errors": {
+                            "non_field_errors": [
+                                "좋아요와 싫어요를 동시에 선택할 수 없습니다."
+                            ]
+                        }
+                    }
+                }
+            ),
+        }
+    )
+    def put(self, request):
+        # 유저가 특정 투어에 대해 좋아요 또는 싫어요를 업데이트
+        user = request.user
+        tour_id = request.data.get('tour_id')
+        tour = get_object_or_404(Tours, id=tour_id)
+        data = request.data
+
+        # 기존의 좋아요/싫어요 기록 가져오기 (없으면 생성)
+        like_dislike, created = LikeDislike.objects.get_or_create(user=user, tour=tour)
+
+        # 좋아요/싫어요 상태 업데이트
+        serializer = LikeDislikeSerializer(like_dislike, data=data, partial=True)
+
+        if serializer.is_valid():
+            serializer.save()
+            if created:
+                message = "좋아요/싫어요 상태가 저장되었습니다."
+            else:
+                message = "좋아요/싫어요 상태가 업데이트되었습니다."
+            return Response({"message": message, "result": serializer.data}, status=status.HTTP_200_OK)
+
+        return Response({"message": "유효하지 않은 데이터입니다.", "errors": serializer.errors}, status=status.HTTP_400_BAD_REQUEST)
+
+class LikeTourListView(APIView):
+
+    @swagger_auto_schema(
+        operation_summary="유저의 여행지 리스트 좋아요/싫어요 조회",
+        operation_description="여행지 리스트의 좋아요/싫어요를 조회합니다.",
+        manual_parameters=[
+            openapi.Parameter(
+                'group_id', 
+                openapi.IN_QUERY, 
+                description="group_id", 
+                type=openapi.TYPE_INTEGER,
+                required=True
+            ),
+        ],
+        responses={
+            200: openapi.Response(
+                description="조회 성공",
+                examples={
+                    "application/json": {
+                        "message": "유저의 해당 단체 여행지 리스트의 좋아요/싫어요를 조회합니다.",
+                        "result": [
+                            {
+                                "group": 1,
+                                "tour_list": [
+                                    {
+                                        "tour_id": 2,
+                                        "tour_name": "가곡국민여가캠핑장",
+                                        "is_liked": 'true',
+                                        "is_disliked": 'false'
+                                    },
+                                    {
+                                        "tour_id": 4,
+                                        "tour_name": "가도 가도 또 가고 싶은 여행지의 스테디셀러",
+                                        "is_liked": 'false',
+                                        "is_disliked": 'false'
+                                    },
+                                    {
+                                        "tour_id": 5,
+                                        "tour_name": "가람리조트",
+                                        "is_liked": 'false',
+                                        "is_disliked": 'false'
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                }
+            ),
+            404: openapi.Response(
+                description="조회 실패",
+                examples={
+                    "application/json": {
+                        "message": "단체 여행지 리스트가 존재하지 않습니다."
+                    }
+                }
+            )
+        }
+    )
+    def get(self, request):
+        # 그룹의 여행지에 대한 유저의 좋아요/싫어요 상태를 조회
+        group_id = request.GET.get('group_id')
+        group_tour_list = GroupTourList.objects.filter(group_id=group_id)
+
+        if not group_tour_list.exists():
+            return Response({"message": "단체 여행지 리스트가 존재하지 않습니다."}, status=status.HTTP_404_NOT_FOUND)
+        
+        serializer = LikeTourListSerializer(group_tour_list, context={'request': request}, many=True)
+        return Response({"message": "유저의 해당 단체 여행지 리스트의 좋아요/싫어요를 조회합니다.",
+            "result": serializer.data}, status=status.HTTP_200_OK)
