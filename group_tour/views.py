@@ -2,9 +2,8 @@ from rest_framework import status
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from accounts.models import Group
-from .serializers import GroupSerializer, GroupListSerializer, GroupTourListSerializer, LikeDislikeSerializer, LikeTourListSerializer
+from .serializers import GroupSerializer, GroupListSerializer, GroupTourListSerializer, LikeDislikeSerializer, LikeTourListSerializer, GroupLikeTourListSerializer
 from django.contrib.auth import get_user_model
-import json
 from rest_framework.response import Response
 from drf_yasg.utils import swagger_auto_schema
 from drf_yasg import openapi
@@ -133,7 +132,6 @@ class GroupView(APIView):
         }
     )
     def post(self, request):
-        # print(request.data)
         User = get_user_model()
         name = request.data.get('name')
         leader_id = request.data.get('leader')
@@ -144,7 +142,7 @@ class GroupView(APIView):
 
         leader = User.objects.get(id=leader_id)
         members = User.objects.filter(id__in=member_ids)
-
+        print(leader, members)
         data = {
             'name': name,
             'leader': leader.id,  # 리더의 ID 전달
@@ -285,8 +283,22 @@ class RecommendGroupTourListView(APIView):
         region = request.data.get('region')
 
         group = get_object_or_404(Group, id=group_id)
-        group_info = get_object_or_404(GroupInfo, group_id=group_id)
-
+        people_num = len(group.get_members_with_leader())
+        group_name = group.name
+        print(group, people_num, group_name)
+        group_info, created = GroupInfo.objects.get_or_create(
+            group=group,
+            defaults={
+                'people_num': people_num,
+                'group_name': group_name,
+            }
+        )
+        print(group_info)
+        if not created:
+            group_info.people_num = people_num
+            group_info.group_name = group_name
+            group_info.save()
+            
         result = recommend_similar_group(group, group_info.id, region)
         tour_info_list = result.get('tour_info_list', [])
         tour_ids = [tour['tour_id'] for tour in tour_info_list]
@@ -691,4 +703,18 @@ class LikeTourListView(APIView):
         
         serializer = LikeTourListSerializer(group_tour_list, context={'request': request}, many=True)
         return Response({"message": "유저의 해당 단체 여행지 리스트의 좋아요/싫어요를 조회합니다.",
+            "result": serializer.data}, status=status.HTTP_200_OK)
+
+class GroupLikeTourListView(APIView):
+    
+    def get(self, request):
+        # 그룹의 여행지에 대한 유저의 좋아요/싫어요 상태를 조회
+        group_id = request.GET.get('group_id')
+        group_tour_list = GroupTourList.objects.filter(group_id=group_id)
+
+        if not group_tour_list.exists():
+            return Response({"message": "단체 여행지 리스트가 존재하지 않습니다."}, status=status.HTTP_404_NOT_FOUND)
+        
+        serializer = GroupLikeTourListSerializer(group_tour_list, context={'request': request}, many=True)
+        return Response({"message": "단체의 여행지 리스트 좋아요/싫어요를 조회합니다.",
             "result": serializer.data}, status=status.HTTP_200_OK)
