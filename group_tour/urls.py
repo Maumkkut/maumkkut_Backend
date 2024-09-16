@@ -13,6 +13,7 @@ urlpatterns = [
     path('recommend/', views.RecommendGroupTourListView.as_view(), name="recommend_group_tour_list"),
     path('tour_list/', views.GroupTourListView.as_view(), name="group_tour_list"),
     path('tour_list/like/', views.LikeTourListView.as_view(), name="tour_list_like"),
+    path('tour_list/like/group/', views.GroupLikeTourListView.as_view(), name="tour_list_group_like"),
 
     # like-dislike
     path('like/', views.LikeDislikeView.as_view(), name='like-dislike'),

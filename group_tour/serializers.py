@@ -90,3 +90,68 @@ class LikeTourListSerializer(serializers.ModelSerializer):
     def get_tour_list(self, obj):
         serializer = LikeTourOrderSerializer(obj.grouptourorder_set.all(), many=True, context=self.context)
         return serializer.data
+
+class GroupLikeOrderSerializer(serializers.ModelSerializer):
+    tour_id = serializers.IntegerField(source='tour.id')
+    tour_name = serializers.CharField(source='tour.title')
+    like_count = serializers.SerializerMethodField()
+    dislike_count = serializers.SerializerMethodField()
+    like_members = serializers.SerializerMethodField()
+    dislike_members = serializers.SerializerMethodField()
+
+    class Meta:
+        model = GroupTourOrder
+        fields = ['tour_id', 'tour_name', 'like_count', 'dislike_count', 'like_members', 'dislike_members']
+
+    def get_like_count(self, obj):
+        request = self.context.get('request')
+        group_id = request.GET.get('group_id')
+        group = Group.objects.get(id=group_id)
+        users = group.get_members_with_leader()
+        if not group:
+            return 0
+        return LikeDislike.objects.filter(user__in=users, tour=obj.tour, is_liked=True).count()
+
+    def get_dislike_count(self, obj):
+        request = self.context.get('request')
+        group_id = request.GET.get('group_id')
+        group = Group.objects.get(id=group_id)
+        users = group.get_members_with_leader() 
+        if not group:
+            return 0
+        return LikeDislike.objects.filter(user__in=users, tour=obj.tour, is_disliked=True).count()
+    
+    def get_like_members(self, obj):
+        request = self.context.get('request')
+        group_id = request.GET.get('group_id')
+        group = Group.objects.get(id=group_id)
+        users = group.get_members_with_leader() 
+        User = get_user_model()
+
+        like_users = LikeDislike.objects.filter(user__in=users, tour=obj.tour, is_liked=True).values_list('user', flat=True)
+        liked_users_list = User.objects.filter(id__in=like_users)
+        usernames = liked_users_list.values_list('username', flat=True)
+        return list(usernames)
+    
+    def get_dislike_members(self, obj):
+        request = self.context.get('request')
+        group_id = request.GET.get('group_id')
+        group = Group.objects.get(id=group_id)
+        users = group.get_members_with_leader() 
+        User = get_user_model()
+
+        dislike_users = LikeDislike.objects.filter(user__in=users, tour=obj.tour, is_disliked=True).values_list('user', flat=True)
+        disliked_users_list = User.objects.filter(id__in=dislike_users)
+        usernames = disliked_users_list.values_list('username', flat=True)
+        return list(usernames)
+
+class GroupLikeTourListSerializer(serializers.ModelSerializer):
+    tour_list = serializers.SerializerMethodField()
+
+    class Meta:
+        model = GroupTourList
+        fields = ['group', 'tour_list']
+
+    def get_tour_list(self, obj):
+        serializer = GroupLikeOrderSerializer(obj.grouptourorder_set.all(), many=True, context=self.context)
+        return serializer.data
