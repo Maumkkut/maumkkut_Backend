@@ -141,7 +141,6 @@ class GroupView(APIView):
 
         leader = User.objects.get(id=leader_id)
         members = User.objects.filter(id__in=member_ids)
-        print(leader, members)
         data = {
             'name': name,
             'leader': leader.id,  # 리더의 ID 전달
@@ -494,7 +493,7 @@ class GroupTourListView(APIView):
         GroupTourOrder.objects.filter(group_tour_list=group_tour_list).delete()
 
         # 새로운 데이터 저장
-        for order, tour_id in enumerate(tour_ids):
+        for order, tour_id in enumerate(tour_ids, start=1):
             try:
                 tour = Tours.objects.get(id=tour_id)
             except Tours.DoesNotExist:
