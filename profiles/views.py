@@ -9,6 +9,7 @@ from drf_yasg import openapi
 from board.models import Post, Comment
 from .serializers import UserPostSerializer, UserCommentSerializer
 from rest_framework.pagination import PageNumberPagination
+from django.db.models import Count, Sum
 
 class TenResultsSetPagination(PageNumberPagination):
     page_size = 10  # 페이지당 10개 항목
@@ -122,7 +123,7 @@ def user_comment_list(request):
 
 @swagger_auto_schema(
     method='get',
-    operation_summary="현재 사용자가 작성한 게시글 및 댓글 수 조회",
+    operation_summary="현재 사용자가 작성한 게시글 및 댓글 수와 받은 좋아요 수 조회",
     responses={
         200: openapi.Response(
             '성공',
@@ -132,13 +133,15 @@ def user_comment_list(request):
                     'username': openapi.Schema(type=openapi.TYPE_STRING, description='사용자 이름'),
                     'post_count': openapi.Schema(type=openapi.TYPE_INTEGER, description='게시글 수'),
                     'comment_count': openapi.Schema(type=openapi.TYPE_INTEGER, description='댓글 수'),
+                    'total_likes': openapi.Schema(type=openapi.TYPE_INTEGER, description='받은 좋아요 수'),
                 }
             ),
             examples={
                 "application/json": {
                     "username": "example_user",
                     "post_count": 5,
-                    "comment_count": 10
+                    "comment_count": 10,
+                    "total_likes": 50
                 }
             }
         )
@@ -150,11 +153,15 @@ def user_content_count(request):
     user = request.user
     post_count = Post.objects.filter(author=user).count()
     comment_count = Comment.objects.filter(author=user).count()
+    total_likes = Post.objects.filter(author=user).annotate(num_likes=Count('liked_users')).aggregate(total_likes=Sum('num_likes'))['total_likes'] or 0
+    
     return Response({
         'username': user.username,
         'post_count': post_count,
         'comment_count': comment_count,
+        'total_likes': total_likes,
     }, status=status.HTTP_200_OK)
+
 @swagger_auto_schema(
     method='get',
     operation_summary="현재 사용자가 좋아요한 게시글 목록 조회",
