@@ -30,14 +30,14 @@ post_response_example = {
             'id': 1,
             'title': '최근 작성한 게시글',
             'content': '게시글 내용',
-            'created_at': '5분 전',  # 5분 전에 작성된 경우
+            'created_at': '5분 전',
             'board_type': 'free',
         },
         {
             'id': 2,
             'title': '어제 작성한 게시글',
             'content': '게시글 내용',
-            'created_at': '2023-10-01',  # 어제 날짜
+            'created_at': '1일 전',
             'board_type': 'free',
         }
     ]
@@ -52,13 +52,13 @@ comment_response_example = {
             'id': 1,
             'content': '최근 작성한 댓글',
             'post_title': '관련 게시글 제목',
-            'created_at': '2시간 전',  # 2시간 전에 작성된 경우
+            'created_at': '2시간 전',
         },
         {
             'id': 2,
             'content': '지난주에 작성한 댓글',
             'post_title': '관련 게시글 제목',
-            'created_at': '2023-09-25',  # 일주일 전 날짜
+            'created_at': '1일 전',
         }
     ]
 }
