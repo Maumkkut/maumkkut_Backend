@@ -21,7 +21,7 @@ urlpatterns = [
     path('get_routes_by_tour_type_area/<int:areacode>/<str:tour_type>/', views.get_routes_by_tour_type_area, name='get_routes_by_tour_type_area'),
 
     # 여행 유형 캐릭터 추천
-    path('recommend_character/', views.recommend_character_view, name='recommend_character'),
+    # path('recommend_character/', views.recommend_character_view, name='recommend_character'),
 
     # 개인 여행지 추천
     path('recommend_course/', views.recommend_course_view, name='recommend_course'),

@@ -4,7 +4,6 @@ from rest_framework.views import APIView
 from accounts.models import Group
 from .serializers import GroupSerializer, GroupListSerializer, GroupTourListSerializer, LikeDislikeSerializer, LikeTourListSerializer, GroupLikeTourListSerializer
 from django.contrib.auth import get_user_model
-from rest_framework.response import Response
 from drf_yasg.utils import swagger_auto_schema
 from drf_yasg import openapi
 from django.shortcuts import get_object_or_404
@@ -122,7 +121,7 @@ class GroupView(APIView):
                 }
             ),
             400: openapi.Response(
-                description="조회 실패",
+                description="생성 실패",
                 examples={
                     "application/json": {
                         "error": "group id는 null 일 수 없습니다."

@@ -40,6 +40,7 @@ INSTALLED_APPS = [
     'corsheaders',
     'accounts',
     'group_tour',
+    'travel_test',
     'django.contrib.sites',
     'allauth',
     'allauth.account',

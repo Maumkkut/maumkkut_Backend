@@ -448,12 +448,9 @@ def recommend_character_view(request):
     try:
         print(request.data)
         user_id = request.data.get('user_id')
-        importance = request.data.get('importance_list')
-        importance_list = json.loads(importance)
+        importance_list = request.data.get('importance_list')
         print(importance_list)
-        if not isinstance(importance_list, list) or len(importance_list) != 10:
-            return Response({"error": "중요도 리스트가 잘못되었습니다."}, status=status.HTTP_400_BAD_REQUEST)
-
+        
         character_info = recommend_character(importance_list)
         User = get_user_model()
         user = User.objects.get(id=user_id)
