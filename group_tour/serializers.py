@@ -2,7 +2,7 @@ from rest_framework import serializers
 from django.contrib.auth import get_user_model
 from accounts.models import Group
 from createDB.models import Tours
-from .models import GroupTourList, GroupTourOrder
+from .models import GroupTourList, GroupTourOrder, LikeDislike
 
 class GroupSerializer(serializers.ModelSerializer):
     User = get_user_model()
@@ -45,21 +45,48 @@ class GroupTourListSerializer(serializers.ModelSerializer):
         model = GroupTourList
         fields = ['group', 'tour_list']
 
-    def update(self, instance, validated_data):
-        tour_ids = validated_data.pop('tour_list', [])
-        GroupTourOrder.objects.filter(group_tour_list=instance).delete()
-        
-        # for order, tour_id in enumerate(tour_ids):
-        #     try:
-        #         tour = Tours.objects.get(id=tour_id)
-        #     except Tours.DoesNotExist:
-        #         raise serializers.ValidationError(f'Tour with ID {tour_id} does not exist.')
-            
-        #     GroupTourOrder.objects.create(
-        #         group_tour_list=instance,
-        #         tour=tour,
-        #         order=order
-        #     )
+class LikeDislikeSerializer(serializers.ModelSerializer):
+    
+    class Meta:
+        model = LikeDislike
+        fields = ['user', 'tour', 'is_liked', 'is_disliked']
+    
+    def validate(self, data):
+        # 좋아요와 싫어요가 동시에 True일 수 없도록 검증
+        if data.get('is_liked') and data.get('is_disliked'):
+            raise serializers.ValidationError("좋아요와 싫어요를 동시에 선택할 수 없습니다.")
+        return data 
+    
+    
+class LikeTourOrderSerializer(serializers.ModelSerializer):
+    is_liked = serializers.SerializerMethodField()
+    is_disliked = serializers.SerializerMethodField()
+    tour_id = serializers.IntegerField(source='tour.id')
+    tour_name = serializers.CharField(source='tour.title')
+    class Meta:
+        model = GroupTourOrder
+        fields = ['tour_id', 'tour_name', 'is_liked', 'is_disliked']
 
-        instance.save()
-        return instance
+    def get_is_liked(self, obj):
+        request = self.context.get('request')
+        if request and request.user.is_authenticated:
+            return LikeDislike.objects.filter(user=request.user, tour=obj.tour, is_liked=True).exists()
+        return False
+
+    def get_is_disliked(self, obj):
+        request = self.context.get('request')
+        if request and request.user.is_authenticated:
+            return LikeDislike.objects.filter(user=request.user, tour=obj.tour, is_disliked=True).exists()
+        return False
+
+
+class LikeTourListSerializer(serializers.ModelSerializer):
+    tour_list = serializers.SerializerMethodField()
+
+    class Meta:
+        model = GroupTourList
+        fields = ['group', 'tour_list']
+
+    def get_tour_list(self, obj):
+        serializer = LikeTourOrderSerializer(obj.grouptourorder_set.all(), many=True, context=self.context)
+        return serializer.data
