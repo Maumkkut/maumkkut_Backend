@@ -16,7 +16,7 @@ from .serializers import AddUserInfoSerializer, UserInfoSerializer
 class TestView(View):
     def get(self, request):
         return JsonResponse({'status': 'Test view working!'}, status=status.HTTP_200_OK)
-    
+
 def google_login(request):
     CLIENT_ID = os.environ.get('GOOGLE_CLIENT_ID')
     REDIRECT_URI = os.environ.get('GOOGLE_REDIRECT')
@@ -80,6 +80,7 @@ def google_callback(request):
         # 사용자를 Django 세션에 로그인
         login(request, user, backend='django.contrib.auth.backends.ModelBackend')
 
+        token = get_token(user)
         # 추가 정보 필요할 경우 리디렉션
         if not user.address or not user.nickname:
             return JsonResponse(
@@ -90,6 +91,7 @@ def google_callback(request):
                     },
                     "message": "Login successful, please complete your profile.",
                     "add_info": True,
+                    "key": token,
                     "redirect_url": "http://localhost:5173/signin/loading"
                 },
                 status=status.HTTP_200_OK,
@@ -102,6 +104,7 @@ def google_callback(request):
                     "email": user.email,
                 },
                 "add_info": False,
+                "key": token,
                 "message": "Login successful",
             },
             status=status.HTTP_200_OK,
@@ -429,3 +432,8 @@ class UserInfoView(APIView):
             
         # 잘못된 정보 조회
         return Response({"message": "잘못된 접근입니다."}, status=status.HTTP_400_BAD_REQUEST)
+
+def get_token(user):
+    from rest_framework.authtoken.models import Token
+    token, created = Token.objects.get_or_create(user=user)
+    return token.key
