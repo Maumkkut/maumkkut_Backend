@@ -34,18 +34,6 @@ class User_info(models.Model):
     user_people = models.IntegerField(null=True)
     user_shopping = models.IntegerField(null=True)
     user_photo = models.IntegerField(null=True)
-    
-    # ManyToMany 관계 설정
-    tour_like = models.ManyToManyField('Tours', through='User_info_tour_like', related_name='liked_users')
-    tour_dislike = models.ManyToManyField('Tours', through='User_info_tour_dislike', related_name='disliked_users')
-  
-class User_info_tour_like(models.Model):
-    user_info = models.ForeignKey(User_info, on_delete=models.CASCADE)
-    tour = models.ForeignKey('Tours', on_delete=models.CASCADE)
-
-class User_info_tour_dislike(models.Model):
-    user_info = models.ForeignKey(User_info, on_delete=models.CASCADE)
-    tour = models.ForeignKey('Tours', on_delete=models.CASCADE)
 
 class GroupInfo(models.Model):
   group = models.ForeignKey(Group, on_delete=models.CASCADE)
