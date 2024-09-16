@@ -285,7 +285,6 @@ class RecommendGroupTourListView(APIView):
         group = get_object_or_404(Group, id=group_id)
         people_num = len(group.get_members_with_leader())
         group_name = group.name
-        print(group, people_num, group_name)
         group_info, created = GroupInfo.objects.get_or_create(
             group=group,
             defaults={
@@ -293,12 +292,11 @@ class RecommendGroupTourListView(APIView):
                 'group_name': group_name,
             }
         )
-        print(group_info)
         if not created:
             group_info.people_num = people_num
             group_info.group_name = group_name
             group_info.save()
-            
+
         result = recommend_similar_group(group, group_info.id, region)
         tour_info_list = result.get('tour_info_list', [])
         tour_ids = [tour['tour_id'] for tour in tour_info_list]
@@ -571,7 +569,7 @@ class LikeDislikeView(APIView):
         return Response({"message": "좋아요/싫어요 기록이 없습니다."}, status=status.HTTP_404_NOT_FOUND)
 
     @swagger_auto_schema(
-        operation_summary="여행지 좋아요/싫어요 업데이트",
+        operation_summary="여행지 좋아요/싫어요 생성 및 수정",
         operation_description="여행지 좋아요/싫어요를 업데이트합니다.",
         request_body=openapi.Schema(
             type=openapi.TYPE_OBJECT,
@@ -707,14 +705,90 @@ class LikeTourListView(APIView):
 
 class GroupLikeTourListView(APIView):
     
+    @swagger_auto_schema(
+        operation_summary="단체 여행지 리스트 좋아요/싫어요 카운트 및 해당 멤버 조회",
+        operation_description="여행지 리스트의 좋아요/싫어요 카운트 및 해당 멤버를 조회합니다.",
+        manual_parameters=[
+            openapi.Parameter(
+                'group_id', 
+                openapi.IN_QUERY, 
+                description="group_id", 
+                type=openapi.TYPE_INTEGER,
+                required=True
+            ),
+        ],
+        responses={
+            200: openapi.Response(
+                description="조회 성공",
+                examples={
+                    "application/json": {
+                        "message": "단체의 좋아요/싫어요 카운트 및 해당 멤버를 조회합니다.",
+                        "result": [
+                            {
+                                "group": 11,
+                                "tour_list": [
+                                    {
+                                        "tour_id": 4156,
+                                        "tour_name": "키즈몬 강릉점",
+                                        "like_count": 1,
+                                        "dislike_count": 1,
+                                        "like_members": [
+                                            "test"
+                                        ],
+                                        "dislike_members": [
+                                            "test2"
+                                        ]
+                                    },
+                                    {
+                                        "tour_id": 3889,
+                                        "tour_name": "초당젤라또 도깨비점",
+                                        "like_count": 0,
+                                        "dislike_count": 2,
+                                        "like_members": [],
+                                        "dislike_members": [
+                                            "test",
+                                            "test2"
+                                        ]
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                }
+            ),
+            204: openapi.Response(
+                description="조회 실패",
+                examples={
+                    "application/json": {
+                        "message": "단체 여행지 리스트가 존재하지 않습니다."
+                    }
+                }
+            ),
+            404: openapi.Response(
+                description="조회 실패",
+                examples={
+                    "application/json": {
+                        "message": "해당 그룹을 찾을 수 없습니다."
+                    }
+                }
+            )
+        }
+    )
     def get(self, request):
-        # 그룹의 여행지에 대한 유저의 좋아요/싫어요 상태를 조회
+        # 그룹의 여행지에 대한 그룹 멤버의 좋아요/싫어요 상태를 조회
         group_id = request.GET.get('group_id')
+        group = Group.objects.get(id=group_id)
+        if not group:
+            return Response({
+                "message": "해당 그룹을 찾을 수 없습니다."
+                }, status=status.HTTP_404_NOT_FOUND)
         group_tour_list = GroupTourList.objects.filter(group_id=group_id)
 
         if not group_tour_list.exists():
-            return Response({"message": "단체 여행지 리스트가 존재하지 않습니다."}, status=status.HTTP_404_NOT_FOUND)
+            return Response({
+                "message": "단체 여행지 리스트가 존재하지 않습니다."
+                }, status=status.HTTP_204_NO_CONTENT)
         
         serializer = GroupLikeTourListSerializer(group_tour_list, context={'request': request}, many=True)
-        return Response({"message": "단체의 여행지 리스트 좋아요/싫어요를 조회합니다.",
+        return Response({"message": "단체 여행지의 좋아요/싫어요 및 해당 멤버를 조회합니다.",
             "result": serializer.data}, status=status.HTTP_200_OK)
