@@ -2,12 +2,16 @@ from rest_framework import status
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from accounts.models import Group
-from .serializers import GroupSerializer, GroupListSerializer
+from .serializers import GroupSerializer, GroupListSerializer, GroupTourListSerializer
 from django.contrib.auth import get_user_model
 import json
 from rest_framework.response import Response
 from drf_yasg.utils import swagger_auto_schema
 from drf_yasg import openapi
+from django.shortcuts import get_object_or_404
+from createDB.models import GroupInfo, Tours
+from createDB.DataProcessing.GroupSimilarityCourses import recommend_similar_group
+from .models import GroupTourList, GroupTourOrder
 
 # 그룹 생성 및 조회
 class GroupView(APIView):
@@ -221,3 +225,80 @@ class UserGroupView(APIView):
             
         # 그룹이 존재하지 않을 경우
         return Response({"error": "그룹이 존재하지 않습니다."}, status=status.HTTP_204_NO_CONTENT)
+    
+
+# 그룹 유사도 기반 여행 리스트 추천
+class RecommendGroupTourListView(APIView):
+    def post(self, request):
+        group_id = request.data.get('group_id')
+        region = request.data.get('region')
+
+        group = get_object_or_404(Group, id=group_id)
+        group_info = get_object_or_404(GroupInfo, group_id=group_id)
+
+        result = recommend_similar_group(group, group_info.id, region)
+        tour_info_list = result.get('tour_info_list', [])
+        tour_ids = [tour['tour_id'] for tour in tour_info_list]
+        
+        group_tour_list, created = GroupTourList.objects.get_or_create(group=group)
+
+        for index, tour_id in enumerate(tour_ids):
+            tour = get_object_or_404(Tours, id=tour_id)
+            group_tour_order, created = GroupTourOrder.objects.get_or_create(
+                group_tour_list=group_tour_list, 
+                tour=tour,
+                defaults={'order': index + 1}
+            )
+            if not created:
+                group_tour_order.order = index + 1
+                group_tour_order.save()
+
+        return Response({
+            "message": "추천된 단체 여행지 리스트입니다.",
+            "result": result},
+            status=status.HTTP_200_OK)
+
+# 그룹 여행지 리스트
+class GroupTourListView(APIView):
+    def get(self, request):
+        group_id = request.GET.get('group_id')
+        group_tour_list = GroupTourList.objects.filter(group_id=group_id)
+
+        if not group_tour_list.exists():
+            return Response({"message": "GroupTourList not found."}, status=status.HTTP_404_NOT_FOUND)
+        
+        serializer = GroupTourListSerializer(group_tour_list, many=True)
+        return Response({"message": "그룹 여행지 리스트를 조회합니다.",
+            "result": serializer.data}, status=status.HTTP_200_OK)
+     
+    def put(self, request):
+        group_id = request.data.get('group_id')
+        tour_ids = request.data.get('tour_list', [])
+        group_tour_list = GroupTourList.objects.get(group_id=group_id)
+        if not group_tour_list:
+            return Response({"message": "그룹 여행 리스트가 존재하지 않습니다."}, status=status.HTTP_404_NOT_FOUND)
+
+        # 기존 데이터 삭제
+        GroupTourOrder.objects.filter(group_tour_list=group_tour_list).delete()
+
+        # 새로운 데이터를 저장
+        for order, tour_id in enumerate(tour_ids):
+            try:
+                tour = Tours.objects.get(id=tour_id)
+            except Tours.DoesNotExist:
+                return Response({"message": f"Tour with ID {tour_id} does not exist."}, status=status.HTTP_400_BAD_REQUEST)
+            
+            GroupTourOrder.objects.create(
+                group_tour_list=group_tour_list,
+                tour=tour,
+                order=order
+            )
+
+        updated_group_tour_list = GroupTourList.objects.get(id=group_tour_list.id)  # 인스턴스 가져오기
+        serializer = GroupTourListSerializer(updated_group_tour_list)
+
+        return Response({"message": "그룹 여행지 리스트가 업데이트되었습니다.",
+                         "result": serializer.data}, status=status.HTTP_200_OK)
+
+        # return Response({"message": "데이터가 유효하지 않습니다.",
+        #                     "errors": serializer.errors}, status=status.HTTP_400_BAD_REQUEST)

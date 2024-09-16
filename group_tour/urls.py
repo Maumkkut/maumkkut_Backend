@@ -6,8 +6,10 @@ urlpatterns = [
     # group endpoint
     path('', views.GroupView.as_view(), name='group'),
 
-    # group_tour
-    path('list/', views.UserGroupView.as_view(), name="group_list")
+    # my_group
+    path('list/', views.UserGroupView.as_view(), name="group_list"),
 
-    
+    # group_tour
+    path('recommend/', views.RecommendGroupTourListView.as_view(), name="recommend_group_tour_list"),
+    path('tour_list/', views.GroupTourListView.as_view(), name="group_tour_list")
 ]

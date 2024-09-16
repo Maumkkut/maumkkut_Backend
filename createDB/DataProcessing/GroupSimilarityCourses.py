@@ -1,8 +1,8 @@
 from datetime import datetime
-from ..models import GroupInfo, Group_Members, Routes_plan, Tours, User_info
+from ..models import GroupInfo, Group_Members, Routes_plan
 from sklearn.metrics.pairwise import cosine_similarity
 from sklearn.feature_extraction.text import CountVectorizer
-
+from accounts.models import Group
   
 ###########################################################################################################
 # 단체                                                 
@@ -82,7 +82,7 @@ def find_similar_group(current_group_preferences, groups_data):
 
 
 # input -> group_id(int)
-def recommend_similar_group(current_group_id, target_area):
+def recommend_similar_group(group, current_group_id, target_area):
     # 지역명을 숫자 코드로 변환
     region_codes = {
         "강릉": 1,
@@ -109,13 +109,12 @@ def recommend_similar_group(current_group_id, target_area):
     area_code = region_codes.get(target_area)
     if area_code is None:
         return {"error": "유효하지 않은 지역입니다."}
-
-    # 현재 그룹의 구성원들의 중요도 리스트를 가져옴
-    group_members = Group_Members.objects.filter(group_id=current_group_id)
-    current_group_preferences = []
     
+    # 현재 그룹의 구성원들의 중요도 리스트를 가져옴
+    group_members = group.get_members_with_leader()
+    current_group_preferences = []
     for member in group_members:
-        user_info = member.users.user_info_set.first()
+        user_info = member.user_info_set.first()
         if user_info:
             current_group_preferences.append(get_importance_list(user_info))
 
@@ -125,14 +124,15 @@ def recommend_similar_group(current_group_id, target_area):
     current_group_weighted_list = sum(current_group_preferences, [])
 
     # 특정 지역(area_code)에 해당하는 그룹만 필터링
-    filtered_groups = GroupInfo.objects.filter(routes_plan__route_area=area_code).exclude(id=current_group_id).distinct()
+    filtered_groupinfos = GroupInfo.objects.filter(routes_plan__route_area=area_code).exclude(id=current_group_id).distinct()
 
     groups_data = []
-    for group in filtered_groups:
-        group_members = Group_Members.objects.filter(group_id=group.id)
+    for groupinfo in filtered_groupinfos:
+        group = groupinfo.group
+        group_members = group.get_members_with_leader()
         group_preferences = []
         for member in group_members:
-            user_info = member.users.user_info_set.first()
+            user_info = member.user_info_set.first()
             if user_info:
                 group_preferences.append(get_importance_list(user_info))
         if group_preferences:
@@ -153,8 +153,10 @@ def recommend_similar_group(current_group_id, target_area):
 
     # 첫 번째 코스만 반환
     selected_route = similar_group_routes.first()
+    print(selected_route.id)
     tour_info_list = [
         {
+            "tour_id": tour.id,
             "title": tour.title,
             "addr1": tour.addr1,
             "mapx": tour.mapx,
@@ -162,7 +164,11 @@ def recommend_similar_group(current_group_id, target_area):
         }
         for tour in selected_route.route_details.all()
     ]
+    for tour in selected_route.route_details.all():
+        print(tour)
+
     result = {
+        "route_id":selected_route.id,
         "route_name": selected_route.route_name,
         "lodge": selected_route.lodge,
         "route_area": selected_route.route_area,

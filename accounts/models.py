@@ -50,8 +50,11 @@ class Group(models.Model):
         return self.name
 
     # 유저 조회
-    def get_members(self):
-        return self.members.all()
+    def get_members_with_leader(self):
+        members = list(self.members.all())
+        if self.leader not in members:
+            members.append(self.leader)
+        return members
 
     # 유저 확인
     def is_user_in_group(self, user):
