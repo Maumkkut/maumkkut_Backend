@@ -31,4 +31,3 @@ class Comment(models.Model):
     report_count = models.IntegerField(default=0, db_index=True)
     is_reported = models.BooleanField(default=False, db_index=True)
     parent_comment = models.ForeignKey('self', null=True, blank=True, related_name='replies', on_delete=models.CASCADE)
-

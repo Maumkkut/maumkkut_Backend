@@ -36,6 +36,7 @@ ALLOWED_HOSTS = [host.strip() for host in allowed_hosts.split(',') if host.strip
 INSTALLED_APPS = [
     'board',
     'createDB',
+    'profiles',
     'corsheaders',
     'accounts',
     'group_tour',
