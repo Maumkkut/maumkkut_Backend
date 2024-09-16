@@ -58,8 +58,14 @@ class CustomRegisterSerializer(RegisterSerializer):
         # 응답 데이터로 토큰 포함
         return user
     
-# 정보 업데이트
-class UserInfoSerializer(serializers.ModelSerializer):
+# 유저 정보 업데이트
+class AddUserInfoSerializer(serializers.ModelSerializer):
     class Meta:
         model = get_user_model()
         fields = ['phone_number', 'date_of_birth', 'name', 'nickname']
+
+# 유저 정보 조회
+class UserInfoSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = get_user_model()
+        fields = ['name', 'nickname', 'email', 'phone_number', 'address', 'id']

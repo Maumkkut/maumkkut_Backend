@@ -6,7 +6,8 @@ urlpatterns = [
     # accounts
     path('', include('dj_rest_auth.urls')),  
     path('registration/', include('dj_rest_auth.registration.urls')), 
-    path('add-user-info/', views.AddUserInfo.as_view(), name="add_user_info"), 
+    path('add-user-info/', views.AddUserInfo.as_view(), name="add_user_info"),
+    path('user-info/', views.UserInfoView.as_view(), name="user_info"), 
     
     # google login endpoint
     path('google/login/', views.google_login, name="google_login"),
