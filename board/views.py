@@ -58,12 +58,13 @@ comment_response_example = {
     'previous': None,
     'results': [
         {
-            'id': 1,
-            'content': '예시 댓글 내용',
-            'author': {'id': 1, 'username': 'example_user'},
-            'post': 1,
-            'created_at': '2023-01-01T00:00:00Z',
-            'updated_at': '2023-01-01T00:00:00Z'
+          "id": 1,
+          "content": "예시 댓글 내용",
+          "author_username": "string",
+          "created_at": "2024-09-15T07:15:23.917615Z",
+          "replies": [],
+          "post_id": 1,
+          "board_type": "travel"
         }
     ]
 }
