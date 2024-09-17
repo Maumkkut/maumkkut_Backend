@@ -6,17 +6,20 @@ from accounts.models import User
 class CommentSerializer(serializers.ModelSerializer):
     replies = serializers.SerializerMethodField()
     author_username = serializers.CharField(source='author.username', read_only=True)
+    post_id = serializers.IntegerField(source='post.id', read_only=True)
+    board_type = serializers.CharField(source='post.board_type', read_only=True)
 
     class Meta:
         model = Comment
-        fields = ['id', 'content', 'author_username', 'created_at', 'replies']
-        read_only_fields = ['author_username', 'created_at']
+        fields = ['id', 'content', 'author_username', 'created_at', 'replies', 'post_id', 'board_type']
+        read_only_fields = ['author_username', 'created_at', 'post_id', 'board_type']
 
     @swagger_serializer_method(serializer_or_field=serializers.ListSerializer(child=serializers.IntegerField()))
     def get_replies(self, obj):
         replies_queryset = Comment.objects.filter(parent_comment=obj).order_by('-created_at')
         replies_serializer = CommentSerializer(replies_queryset, many=True)
         return replies_serializer.data
+
 
 class PostListSerializer(serializers.ModelSerializer):
     comment_count = serializers.IntegerField(source='comments.count', read_only=True)

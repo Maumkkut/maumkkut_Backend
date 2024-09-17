@@ -25,17 +25,17 @@ CORS_ALLOW_HEADERS = ['*']
 
 
 # 배포서버
-allowed_hosts = os.getenv('ALLOWED_HOSTS')
-ALLOWED_HOSTS = [host.strip() for host in allowed_hosts.split(',') if host.strip()]
+# allowed_hosts = os.getenv('ALLOWED_HOSTS')
+# ALLOWED_HOSTS = [host.strip() for host in allowed_hosts.split(',') if host.strip()]
 
 # 로컬서버
-# local_hosts = os.getenv('LOCAL')
-# ALLOWED_HOSTS = [host.strip() for host in local_hosts.split(',')]
+local_hosts = os.getenv('LOCAL')
+ALLOWED_HOSTS = [host.strip() for host in local_hosts.split(',')]
 
 # Application definition
 INSTALLED_APPS = [
     'board',
-    'createDB',
+    # 'createDB',
     'profiles',
     'corsheaders',
     'accounts',
