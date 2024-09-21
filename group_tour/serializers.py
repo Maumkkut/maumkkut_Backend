@@ -29,7 +29,7 @@ class GroupListSerializer(serializers.ModelSerializer):
 class ToursSerializer(serializers.ModelSerializer):
     class Meta:
         model = Tours
-        fields = ['id', 'title', 'addr1', 'mapx', 'mapy']
+        fields = ['id', 'title', 'addr1', 'mapx', 'mapy', 'image']
 
 class GroupTourOrderSerializer(serializers.ModelSerializer):
     tour = ToursSerializer() 
