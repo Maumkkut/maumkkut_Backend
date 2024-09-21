@@ -1,9 +1,9 @@
 from datetime import datetime
-from ..models import GroupInfo, Group_Members, Routes_plan
+from ..models import GroupInfo, Group_Members, Routes_plan, User_info
 from sklearn.metrics.pairwise import cosine_similarity
 from sklearn.feature_extraction.text import CountVectorizer
 from accounts.models import Group
-  
+
 ###########################################################################################################
 # 단체                                                 
 ###########################################################################################################
@@ -115,9 +115,11 @@ def recommend_similar_group(group, current_group_id, target_area):
     current_group_preferences = []
     for member in group_members:
         user_info = member.user_info_set.first()
+        if not user_info:
+            user_info, created = User_info.objects.get_or_create(user=member)
         if user_info:
             current_group_preferences.append(get_importance_list(user_info))
-
+        
     if not current_group_preferences:
         return {"error": "현재 그룹에 구성원이 없습니다."}
 
