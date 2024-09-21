@@ -296,7 +296,12 @@ class CheckUsername(APIView):
                      }, 
                     status=status.HTTP_409_CONFLICT
                     )
-            
+        return Response(
+                {
+                    "message": "user의 ID는 null일 수 없습니다.",
+                },
+                status=status.HTTP_400_BAD_REQUEST
+                )
 
 # nickname 중복체크
 class CheckNickname(APIView):

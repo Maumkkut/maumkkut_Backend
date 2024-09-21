@@ -790,3 +790,75 @@ class GroupLikeTourListView(APIView):
         serializer = GroupLikeTourListSerializer(group_tour_list, context={'request': request}, many=True)
         return Response({"message": "단체 여행지의 좋아요/싫어요 및 해당 멤버를 조회합니다.",
             "result": serializer.data}, status=status.HTTP_200_OK)
+
+class CheckGroupName(APIView):
+    @swagger_auto_schema(
+        operation_summary="그룹 이름 중복체크",
+        operation_description="그룹 이름의 중복체크",
+        manual_parameters=[
+            openapi.Parameter(
+                'group_name', 
+                openapi.IN_QUERY, 
+                description="group_name", 
+                type=openapi.TYPE_STRING,
+                required=True
+            ),
+        ],
+        responses={
+            200: openapi.Response(
+                description="group name 사용 가능",
+                examples={
+                    "application/json": {
+                        "message":
+                        "사용할 수 있는 group name 입니다.",
+                        "result": {
+                            "group_name": "group1"
+                        }
+                    }
+                }
+            ),
+            400: openapi.Response(
+                description="조회 실패",
+                examples={
+                    "application/json": {
+                        "message": "group name은 null일 수 없습니다."
+                    }
+                }
+            ),
+            409: openapi.Response(
+                description="group name 사용 불가",
+                examples={
+                    "application/json": {
+                        "message": "존재하는 group name 입니다."
+                    }
+                }
+            )
+        }
+    )
+    def get(self, request):
+        group_name = request.GET.get('group_name')
+        if group_name:
+            
+            if not Group.objects.filter(name=group_name).exists():
+                # group name 없음
+                return Response(
+                    {
+                        "message":
+                        "사용할 수 있는 group name 입니다.",
+                        "result": {
+                            "group_name": group_name
+                        }
+                    }
+                )
+            
+            return Response({
+                "message": "존재하는 group name 입니다."
+            }, status=status.HTTP_409_CONFLICT)
+        return Response(
+                {
+                    "message": "group name은 null일 수 없습니다.",
+                },
+                status=status.HTTP_400_BAD_REQUEST
+                )
+        
+
