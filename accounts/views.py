@@ -259,6 +259,7 @@ class CheckUsername(APIView):
                         "result": 
                             {
                                 "userId": "user1",
+                                "userPk": 1,
                             }
                      }
                 }
@@ -269,29 +270,33 @@ class CheckUsername(APIView):
         username = request.GET.get('username') # params: username
         User = get_user_model()
         if username:
+            if not User.objects.filter(username = username).exists():
+                # username이 존재하지 않는 경우
+                return Response(
+                    {
+                        "message": "존재하지 않는 ID입니다.",
+                        "result": 
+                            {
+                                "userId" : username,
+                            }
+                    },
+                    status=status.HTTP_200_OK
+                )
+            user = User.objects.get(username = username)
             # username(ID)이 존재할 경우
-            if User.objects.filter(username = username).exists():
+            if user:
                 return Response(
                     {
                         "message": "존재하는 ID입니다.",
                         "result": 
                             {
-                                "userId": username,
+                                "userId" : username,
+                                "userPk": user.pk,
                             }
                      }, 
                     status=status.HTTP_409_CONFLICT
                     )
-            # username이 존재하지 않는 경우
-            return Response(
-                {
-                    "message": "존재하지 않는 ID입니다.",
-                    "result": 
-                        {
-                            "userId": username,
-                        }
-                },
-                status=status.HTTP_200_OK
-            )
+            
 
 # nickname 중복체크
 class CheckNickname(APIView):
