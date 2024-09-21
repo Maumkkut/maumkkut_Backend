@@ -5,6 +5,7 @@ from . import views
 urlpatterns = [
     # group endpoint
     path('', views.GroupView.as_view(), name='group'),
+    path('check/', views.CheckGroupName.as_view(), name="group_name"),
 
     # my_group
     path('list/', views.UserGroupView.as_view(), name="group_list"),
