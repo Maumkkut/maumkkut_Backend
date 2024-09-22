@@ -44,4 +44,5 @@ urlpatterns = [
     path('api/v1/profiles/', include('profiles.urls')),
     path('api/v1/test/', include('travel_test.urls')),
     path('api/v1/random/', include('random_tour.urls')),
+    path('api/v1/home/', include('home.urls')),
 ]

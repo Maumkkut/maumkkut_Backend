@@ -42,6 +42,7 @@ INSTALLED_APPS = [
     'group_tour',
     'travel_test',
     'random_tour',
+    'home',
     'django.contrib.sites',
     'allauth',
     'allauth.account',
