@@ -371,8 +371,9 @@ class AddUserInfo(APIView):
                 'date_of_birth': openapi.Schema(type=openapi.FORMAT_DATE),
                 'name': openapi.Schema(type=openapi.TYPE_STRING),
                 'nickname': openapi.Schema(type=openapi.TYPE_STRING),
+                'address': openapi.Schema(type=openapi.TYPE_STRING),
             },
-            required=['phone_number', 'date_of_birth', 'name', 'nickname']
+            required=['phone_number', 'date_of_birth', 'name', 'nickname', 'address']
         ),
         responses={
             200: openapi.Response(
