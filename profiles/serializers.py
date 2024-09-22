@@ -38,11 +38,12 @@ class UserPostSerializer(serializers.ModelSerializer):
 class UserCommentSerializer(serializers.ModelSerializer):
     post_title = serializers.CharField(source='post.title', read_only=True)
     post_id = serializers.IntegerField(source='post.id', read_only=True)
+    board_type = serializers.CharField(source='post.board_type', read_only=True)
     created_at = serializers.SerializerMethodField()
 
     class Meta:
         model = Comment
-        fields = ['id', 'content', 'post_title', 'post_id', 'created_at']
+        fields = ['id', 'content', 'post_title', 'post_id', 'created_at', 'board_type']
 
     def get_created_at(self, obj):
         now = timezone.now()
