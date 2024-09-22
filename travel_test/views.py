@@ -87,6 +87,7 @@ class TravelTestView(APIView):
                     "application/json": {
                         "mesasge": "여행 취향 테스트 결과입니다.",
                         "result": {
+                            "test_id": 1,
                             "character_type": "미식형 황태",
                             "character_description": "맛집 탐방과 음식을 즐기는 여행을 선호",
                             "recommend_place": "춘천",
