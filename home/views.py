@@ -2,17 +2,18 @@ from rest_framework import status
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from createDB.DataProcessing.FilterName import filter_type
-from .serializers import TypeTourListSerializer
+from .serializers import TypeTourListSerializer, FestivalListSerializer
 import random
 from itertools import chain
 from drf_yasg.utils import swagger_auto_schema
 from drf_yasg import openapi
+from createDB.models import Tours
 # Create your views here.
 
 class TypeView(APIView):
     @swagger_auto_schema(
             operation_summary="여행 유형별 여행지 리스트 조회",
-            operation_description="여행 유형별 여행지를 추천해드립니다.",
+            operation_description="여행 유형별 여행지를 16개 추천해드립니다.",
             manual_parameters=[
                 openapi.Parameter(
                     'travel_type', 
@@ -84,5 +85,41 @@ class TypeView(APIView):
 
         return Response({
             "message": "유형별 추천 여행지 목록을 조회합니다.",
+            "result": serializer.data
+        }, status=status.HTTP_200_OK)
+    
+class FestivalView(APIView):
+    @swagger_auto_schema(
+            operation_summary="강원도 축제 리스트 조회",
+            operation_description="강원도 축제 리스트를 9개 조회합니다.",
+            responses={
+                200: openapi.Response(
+                    description="조회 성공",
+                    examples={
+                        "application/json": {
+                        "message": "강원도 축제 목록을 조회합니다.",
+                        "result": [
+                            {
+                                "tour_id": 169,
+                                "title": "강릉커피축제",
+                                "image": "http://tong.visitkorea.or.kr/cms/resource/83/3020283_image2_1.png"
+                            },
+                            {
+                                "tour_id": 3205,
+                                "title": "원주용수골가을꽃축제",
+                                "image": "http://tong.visitkorea.or.kr/cms/resource/72/3011172_image2_1.jpg"
+                            },
+                        ]
+                        }
+                    }
+                )
+                ,
+            }
+        )
+    def get(self, request):
+        festival_obj = Tours.objects.filter(type_id=15).order_by('?')[:9]
+        serializer = FestivalListSerializer(festival_obj, many=True)
+        return Response({
+            "message": "강원도 축제 목록을 조회합니다.",
             "result": serializer.data
         }, status=status.HTTP_200_OK)
