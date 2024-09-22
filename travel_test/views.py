@@ -138,6 +138,13 @@ class TravelTestView(APIView):
     @swagger_auto_schema(
         operation_summary="여행 취향 테스트 삭제",
         operation_description="유저의 여행 취향 테스트 결과를 삭제합니다.",
+        request_body=openapi.Schema(
+            type=openapi.TYPE_OBJECT,
+            properties={
+                'test_id': openapi.Schema(type=openapi.TYPE_INTEGER),
+            },
+            required=['test_id']
+        ),
         responses={
             204: openapi.Response(
                 description="삭제 성공",
