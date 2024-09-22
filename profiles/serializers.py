@@ -37,11 +37,12 @@ class UserPostSerializer(serializers.ModelSerializer):
 
 class UserCommentSerializer(serializers.ModelSerializer):
     post_title = serializers.CharField(source='post.title', read_only=True)
+    post_id = serializers.IntegerField(source='post.id', read_only=True)
     created_at = serializers.SerializerMethodField()
 
     class Meta:
         model = Comment
-        fields = ['id', 'content', 'post_title', 'created_at']
+        fields = ['id', 'content', 'post_title', 'post_id', 'created_at']
 
     def get_created_at(self, obj):
         now = timezone.now()
@@ -65,3 +66,4 @@ class UserCommentSerializer(serializers.ModelSerializer):
                     return f"{obj.created_at.month}월 전"
             else:
                 return f"{obj.created_at.year}년 전"
+            
