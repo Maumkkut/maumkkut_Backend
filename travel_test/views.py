@@ -33,11 +33,11 @@ class TravelTestView(APIView):
                         "mesasge": "여행 취향 테스트를 조회합니다.",
                         "result": [
                             {
-                                "character_type": "미식형 황태",
+                                "character_type": "미식가형 송이",
                                 "character_description": "맛집 탐방과 음식을 즐기는 여행을 선호",
                                 "recommend_place": "춘천",
                                 "recommend_reason": "맛집 탐방과 음식을 즐기는 '황태' 유형에게 춘천은 다양한 맛집이 있어 미식 여행을 즐기기에 적합한 곳입니다.",
-                                "best_match": "관람형 배추",
+                                "best_match": "관람형 곤드레",
                                 "match_reason": "맛집 탐방과 문화 관람을 함께 즐길 수 있는 두 유형은 여행 중 자연스럽게 서로의 취향을 반영한 일정을 만들 수 있어 서로에게 긍정적인 영향을 줍니다."
                             }
                         ]
@@ -88,11 +88,11 @@ class TravelTestView(APIView):
                         "mesasge": "여행 취향 테스트 결과입니다.",
                         "result": {
                             "test_id": 1,
-                            "character_type": "미식형 황태",
+                            "character_type": "미식가형 송이",
                             "character_description": "맛집 탐방과 음식을 즐기는 여행을 선호",
                             "recommend_place": "춘천",
                             "recommend_reason": "맛집 탐방과 음식을 즐기는 '황태' 유형에게 춘천은 다양한 맛집이 있어 미식 여행을 즐기기에 적합한 곳입니다.",
-                            "best_match": "관람형 배추",
+                            "best_match": "관람형 곤드레",
                             "match_reason": "맛집 탐방과 문화 관람을 함께 즐길 수 있는 두 유형은 여행 중 자연스럽게 서로의 취향을 반영한 일정을 만들 수 있어 서로에게 긍정적인 영향을 줍니다."
                         }
                     }
@@ -216,12 +216,12 @@ class TravelTestListView(APIView):
                         "result": [
                             {
                                 "id": 2,
-                                "character_type": "미식형 황태",
+                                "character_type": "미식가형 송이",
                                 "created_at": "2024-09-16T16:22:20.175429Z"
                             },
                             {
                                 "id": 1,
-                                "character_type": "미식형 황태",
+                                "character_type": "미식가형 송이",
                                 "created_at": "2024-09-16T16:14:11.199690Z"
                             }
                         ]
