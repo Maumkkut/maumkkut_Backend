@@ -153,31 +153,29 @@ def recommend_similar_group(group, current_group_id, target_area):
     if not similar_group_routes.exists():
         return {"error": "해당 그룹의 코스를 찾을 수 없습니다."}
 
-    # 첫 번째 코스만 반환
-    selected_route = similar_group_routes.first()
-    print(selected_route.id)
-    tour_info_list = [
-        {
-            "tour_id": tour.id,
-            "title": tour.title,
-            "addr1": tour.addr1,
-            "mapx": tour.mapx,
-            "mapy": tour.mapy
-        }
-        for tour in selected_route.route_details.all()
-    ]
-    for tour in selected_route.route_details.all():
-        print(tour)
+    # 모든 코스 반환 및 코스의 세부 정보도 포함
+    result = []
+    for selected_route in similar_group_routes.all():
+        tour_info_list = [
+            {
+                "tour_id": tour.id,
+                "title": tour.title,
+                "addr1": tour.addr1,
+                "mapx": tour.mapx,
+                "mapy": tour.mapy
+            }
+            for tour in selected_route.route_details.all()
+        ]
 
-    result = {
-        "route_id":selected_route.id,
-        "route_name": selected_route.route_name,
-        "lodge": selected_route.lodge,
-        "route_area": selected_route.route_area,
-        "tour_startdate": selected_route.tour_startdate,
-        "tour_enddate": selected_route.tour_enddate,
-        "group_id": selected_route.group_id,
-        "tour_info_list": tour_info_list
-    }
+        result.append({
+            "route_id": selected_route.id,
+            "route_name": selected_route.route_name,
+            "lodge": selected_route.lodge,
+            "route_area": selected_route.route_area,
+            "tour_startdate": selected_route.tour_startdate,
+            "tour_enddate": selected_route.tour_enddate,
+            "group_id": selected_route.group_id,
+            "tour_info_list": tour_info_list
+        })
 
     return result
