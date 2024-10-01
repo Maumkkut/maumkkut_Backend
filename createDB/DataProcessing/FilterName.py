@@ -42,7 +42,7 @@ def filter_type(areacode, tour_type):
         tour_data = Tours.objects.filter(
         sigungucode=areacode
         ).filter(
-            Q(cat3='A01011200') | Q(cat3='A02020800') | Q(cat3='A02030600') | Q(cat3='A02050200') | Q(cat3='A02050600') | Q(cat3='A02060100') | Q(cat3='A02060200') | Q(cat3='A02060300') | Q(cat3='A02060400') | Q(cat3='A02060500')
+            Q(cat1='A04') | Q(cat3='A01011200') | Q(cat2='A0202') | Q(cat3='A02030600') | Q(cat3='A02050200') | Q(cat3='A02050600') | Q(cat3='A02060100') | Q(cat3='A02060200') | Q(cat3='A02060300') | Q(cat3='A02060400') | Q(cat3='A02060500')
         )
     elif tour_type == '나무늘보형 순두부':
         tour_data = Tours.objects.filter(
