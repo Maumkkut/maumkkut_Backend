@@ -178,4 +178,11 @@ def recommend_similar_group(group, current_group_id, target_area):
             "tour_info_list": tour_info_list
         })
 
+    # result가 리스트이므로, 딕셔너리처럼 접근할 수 없게 처리
+    if result:
+        # 첫 번째 코스의 tour_info_list를 가져오기
+        tour_info_list = result[0].get('tour_info_list', [])
+    else:
+        tour_info_list = []
+
     return result
